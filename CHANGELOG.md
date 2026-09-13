@@ -53,8 +53,10 @@ verification. 29 are fixed here; 2 are recorded as issues for real-use feedback.
   events are display-only. CHANGELOG intro corrected (all eleven fixes held).
 
 ### Tests
-- 89 unit tests (10 new) and 33 end-to-end flows (11 new). Every new test was
-  checked by re-introducing its defect: 19 distinct defects, all caught.
+- 89 unit tests (10 new) and 34 end-to-end flows (12 new). Every new test was
+  checked by re-introducing its defect: 20 distinct defects, all caught.
+  (The entry in the v0.1.0-alpha.4 tag says 33 flows and 19 defects; the last
+  test was added after the entry was written. Corrected here.)
 
 ### Not fixed (tracked as issues)
 - Very large workspaces (thousands of claims) become slow.
