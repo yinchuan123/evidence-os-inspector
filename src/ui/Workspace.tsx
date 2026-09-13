@@ -97,7 +97,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
         <button className="small" data-testid="locale-toggle" onClick={onToggleLocale}>
           {nav.switchLocale}
         </button>
-        <button className="small" onClick={onHome}>
+        <button className="small home-btn" onClick={onHome}>
           {nav.home}
         </button>
       </header>
@@ -142,6 +142,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
         </section>
         <section className={`pane${tab === 'source' ? ' active' : ''}`} aria-label={s.tabs.source}>
           <SourcePane
+            key={selectedSourceId ?? 'none'}
             ws={ws}
             setWs={setWs}
             s={s}
@@ -161,7 +162,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
             </>
           ) : (
             <>
-              <ReviewPane ws={ws} setWs={setWs} s={s} d={d} states={states} selectedClaimId={selectedClaimId} />
+              <ReviewPane key={selectedClaimId ?? 'none'} ws={ws} setWs={setWs} s={s} d={d} states={states} selectedClaimId={selectedClaimId} />
               <details style={{ marginTop: 16 }} className="desktop-history">
                 <summary className="muted">
                   {s.history} ({ws.history.length})

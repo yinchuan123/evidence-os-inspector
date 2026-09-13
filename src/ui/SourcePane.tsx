@@ -4,7 +4,7 @@ import { safeHref } from '../core/report'
 import type { ID, ImpactReport, Workspace } from '../core/types'
 import { activeBindingsOf, addBinding, addSource, bindingsOf, computeImpact, renameSource, reviseSource, sourceVersionsOf } from '../core/workspace'
 import type { BuiltDemo } from '../demos'
-import { claimDisplayLabel } from './ClaimsPane'
+import { claimDisplayLabel } from './labels'
 import { readFileAsText } from './download'
 import { selectionOffsets } from './selection'
 import type { UIStrings } from './strings'
@@ -47,13 +47,6 @@ export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId,
   useEffect(() => {
     if (!source && sources.length) setSelectedSourceId(sources[0].id)
   }, [source, sources, setSelectedSourceId])
-
-  useEffect(() => {
-    setViewVersionId(null)
-    setRevising(false)
-    setSel(null)
-    setRenaming(false)
-  }, [selectedSourceId])
 
   useEffect(() => {
     const onSel = () => {

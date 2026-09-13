@@ -21,6 +21,7 @@ export function escapeHtml(s: string): string {
 
 // Control characters and whitespace are stripped before protocol checks so
 // that "java\nscript:" style tricks cannot slip through.
+// oxlint-disable-next-line no-control-regex -- stripping control characters is the point
 const STRIP_RE = /[\x00-\x1f\x7f\s]/g
 const DOI_RE = /^10\.\d{4,9}\/[-._;()/:A-Za-z0-9]+$/
 

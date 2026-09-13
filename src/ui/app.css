@@ -281,7 +281,8 @@ a.button {
 .workspace {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
 }
 .impact {
   margin: 10px 16px 0;
@@ -310,17 +311,38 @@ a.button {
 
 .panes {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr) 380px;
+  grid-template-columns: 300px minmax(0, 1fr) 420px;
   gap: 0;
   flex: 1;
   min-height: 0;
+  overflow: hidden;
 }
 .pane {
   border-right: 1px solid var(--line);
-  padding: 12px 14px;
+  padding: 12px 14px 40px;
   overflow: auto;
   background: var(--panel);
   min-width: 0;
+  height: 100%;
+}
+.state.wrap {
+  white-space: normal;
+}
+.review-history {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.review-history li {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.review-history li.latest {
+  border-color: var(--accent);
 }
 .pane:last-child {
   border-right: none;
@@ -482,15 +504,32 @@ fieldset.labels label {
     color: #fff;
     border-color: var(--accent);
   }
+  .workspace {
+    height: auto;
+    min-height: 100vh;
+  }
   .panes {
     display: block;
+    overflow: visible;
   }
   .pane {
     display: none;
     border-right: none;
+    height: auto;
   }
   .pane.active {
     display: block;
+  }
+  .topbar {
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  .topbar button.small {
+    padding: 2px 6px;
+    font-size: 12px;
+  }
+  .topbar .home-btn {
+    display: none;
   }
   .hero h1 {
     font-size: 28px;

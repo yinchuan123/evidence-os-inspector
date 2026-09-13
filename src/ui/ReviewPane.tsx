@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { Dictionary } from '../core/i18n'
 import type { ID, ReviewLabel, ReviewState, StaleReason, Workspace } from '../core/types'
 import { activeBindingsOf, addBinding, addReview, claimVersionsOf, locateExcerpt, reviewsOf, supersededBindingsOf } from '../core/workspace'
-import { claimDisplayLabel } from './ClaimsPane'
+import { claimDisplayLabel } from './labels'
 import type { UIStrings } from './strings'
 
 const LABELS: Exclude<ReviewLabel, 'unreviewed'>[] = ['supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine']
@@ -22,12 +22,6 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
   const [reviewer, setReviewer] = useState('')
   const [msg, setMsg] = useState('')
   const [rebind, setRebind] = useState<Record<ID, { start: number; end: number } | 'not-found'>>({})
-
-  useEffect(() => {
-    setRationale('')
-    setMsg('')
-    setRebind({})
-  }, [selectedClaimId])
 
   if (!selectedClaimId || !ws.claims[selectedClaimId]) {
     return (
@@ -103,7 +97,7 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
       <div className="row">
         <strong>{clabel(claim.id)}</strong>
         <span className="muted">v{head.versionNo}</span>
-        <span className={`state ${st.kind}`} data-testid="review-state">
+        <span className={`state wrap ${st.kind}`} data-testid="review-state">
           {d.state[st.kind]}
           {st.kind !== 'unreviewed' ? ` · ${d.label[st.label]}` : ''}
         </span>
@@ -197,37 +191,27 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
       {reviews.length === 0 ? (
         <p className="muted">{s.noHistory}</p>
       ) : (
-        <table className="compact" data-testid="review-history">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>v</th>
-              <th>{d.review}</th>
-              <th>{d.rationale}</th>
-              <th>{s.basedOn}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {reviews.map((r, i) => (
-              <tr key={r.id}>
-                <td>
-                  {i + 1}
-                  {i === reviews.length - 1 ? ` (${s.latest})` : ''}
-                </td>
-                <td>v{cvNo(r.claimVersionId)}</td>
-                <td>{d.label[r.label]}</td>
-                <td>
-                  {r.rationale}
-                  {r.reviewer ? <div className="muted">— {r.reviewer}</div> : null}
-                  <div className="muted">{r.createdAt.replace('T', ' ').slice(0, 19)}</div>
-                </td>
-                <td className="muted">
-                  {[...r.basisSources.map((b) => `${slabel(b.sourceId)} v${svNo(b.sourceVersionId)}`), ...r.basisClaims.map((b) => `${clabel(b.claimId)} v${cvNo(b.claimVersionId)}`)].join('; ') || '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ol className="review-history" data-testid="review-history">
+          {reviews.map((r, i) => (
+            <li key={r.id} className={i === reviews.length - 1 ? 'latest' : ''}>
+              <div className="row">
+                <strong>
+                  #{i + 1}
+                  {i === reviews.length - 1 ? ` · ${s.latest}` : ''}
+                </strong>
+                <span className="muted">v{cvNo(r.claimVersionId)}</span>
+                <span className="badge">{d.label[r.label]}</span>
+                <span className="muted">{r.createdAt.replace('T', ' ').slice(0, 19)}</span>
+              </div>
+              <div>{r.rationale}</div>
+              {r.reviewer ? <div className="muted">— {r.reviewer}</div> : null}
+              <div className="muted">
+                {s.basedOn}:{' '}
+                {[...r.basisSources.map((b) => `${slabel(b.sourceId)} v${svNo(b.sourceVersionId)}`), ...r.basisClaims.map((b) => `${clabel(b.claimId)} v${cvNo(b.claimVersionId)}`)].join('; ') || '—'}
+              </div>
+            </li>
+          ))}
+        </ol>
       )}
 
       <h3>{s.claimVersions}</h3>
