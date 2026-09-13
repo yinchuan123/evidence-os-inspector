@@ -170,6 +170,7 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
         {s.recordReview} v{head.versionNo}
       </h3>
       <fieldset className="labels">
+        <legend className="sr-only">{s.review}</legend>
         {LABELS.map((l) => (
           <label key={l}>
             <input type="radio" name="review-label" data-testid={`review-label-${l}`} checked={label === l} onChange={() => setLabel(l)} /> {d.label[l]}
@@ -177,9 +178,9 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
         ))}
       </fieldset>
       <label className="field">{s.rationale}</label>
-      <textarea data-testid="review-rationale" value={rationale} onChange={(e) => setRationale(e.target.value)} placeholder={s.rationalePlaceholder} />
+      <textarea data-testid="review-rationale" aria-label={s.rationale} value={rationale} onChange={(e) => setRationale(e.target.value)} placeholder={s.rationalePlaceholder} />
       <label className="field">{s.reviewer}</label>
-      <input type="text" value={reviewer} onChange={(e) => setReviewer(e.target.value)} />
+      <input type="text" aria-label={s.reviewer} value={reviewer} onChange={(e) => setReviewer(e.target.value)} />
       <div className="row">
         <button className="primary" data-testid="review-submit" onClick={submit}>
           {s.submitReview}
@@ -219,9 +220,9 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
         <tbody>
           {claimVersionsOf(ws, claim.id).map((v) => (
             <tr key={v.id}>
-              <td>v{v.versionNo}</td>
+              <td className="nowrap">v{v.versionNo}</td>
               <td>{v.text}</td>
-              <td className="mono muted">{v.contentHash.slice(0, 12)}…</td>
+              <td className="mono muted nowrap">{v.contentHash.slice(0, 12)}…</td>
             </tr>
           ))}
         </tbody>

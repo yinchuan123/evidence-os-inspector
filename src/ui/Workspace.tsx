@@ -35,12 +35,13 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
   const [impact, setImpact] = useState<ImpactReport | null>(null)
   const [tab, setTab] = useState<Tab>('claims')
   const [importError, setImportError] = useState<string[] | null>(null)
+  const [includeSourceText, setIncludeSourceText] = useState(false)
   const importRef = useRef<HTMLInputElement>(null)
 
   const states = useMemo(() => allClaimStates(ws), [ws])
 
   const exportJson = () => downloadText(safeFilename(ws.meta.title, 'json'), exportWorkspace(ws), 'application/json')
-  const exportReport = () => downloadText(safeFilename(ws.meta.title + '-report', 'html'), renderReport(ws, { locale }), 'text/html')
+  const exportReport = () => downloadText(safeFilename(ws.meta.title + '-report', 'html'), renderReport(ws, { locale, includeSourceText }), 'text/html')
   const onImport = async (file: File | undefined) => {
     if (!file) return
     try {
@@ -69,7 +70,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
   return (
     <div className="workspace">
       <header className="topbar">
-        <a className="brand" href="#" onClick={(e) => { e.preventDefault(); onHome() }}>
+        <a className="brand" href="#" data-testid="home-link" onClick={(e) => { e.preventDefault(); onHome() }}>
           {d.appName}
         </a>
         <span className="title" data-testid="ws-title">
@@ -87,6 +88,10 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
         <button className="small" data-testid="export-report" onClick={exportReport}>
           {s.exportReport}
         </button>
+        <label className="check">
+          <input type="checkbox" data-testid="include-source-text" checked={includeSourceText} onChange={(e) => setIncludeSourceText(e.target.checked)} />
+          {s.includeSourceText}
+        </label>
         <button className="small" onClick={() => importRef.current?.click()}>
           {s.importJson}
         </button>

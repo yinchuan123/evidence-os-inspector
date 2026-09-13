@@ -23,7 +23,7 @@ export default defineConfig({
     timeout: 180_000,
   },
   projects: [
-    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }, testIgnore: /narrow\.spec\.ts/ },
-    { name: 'narrow', use: { ...devices['Pixel 7'] }, testMatch: /narrow\.spec\.ts/ },
+    { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } }, testIgnore: /narrow.*\.spec\.ts/ },
+    { name: 'narrow', use: { ...devices['Pixel 7'] }, testMatch: /narrow.*\.spec\.ts/ },
   ],
 })

@@ -45,12 +45,26 @@ const isOptStr = (v: unknown): v is string | undefined => v === undefined || typ
 const isInt = (v: unknown): v is number => Number.isInteger(v)
 const ID_RE = /^[a-z]+_\d+$/
 
-const REVIEW_LABELS = new Set(['unreviewed', 'supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine'])
+// 'unreviewed' is the derived state of a claim with no review; it is never a stored review label.
+const REVIEW_LABELS = new Set(['supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine'])
 const DEP_STATUS = new Set(['confirmed', 'unconfirmed'])
-const EVENT_TYPES = new Set([
-  'workspace-created', 'source-added', 'source-revised', 'source-renamed', 'claim-added', 'claim-edited', 'binding-added',
-  'binding-removed', 'review-added', 'dependency-added', 'dependency-confirmed', 'dependency-removed', 'note',
-])
+// Exact field whitelist per history event type (all string-valued). Anything else is dropped;
+// a missing required field rejects the event.
+const EVENT_FIELDS: Record<string, string[]> = {
+  'workspace-created': [],
+  'source-added': ['sourceId', 'versionId'],
+  'source-revised': ['sourceId', 'fromVersionId', 'toVersionId'],
+  'source-renamed': ['sourceId', 'from', 'to'],
+  'claim-added': ['claimId', 'versionId'],
+  'claim-edited': ['claimId', 'fromVersionId', 'toVersionId'],
+  'binding-added': ['bindingId', 'claimId', 'sourceVersionId'],
+  'binding-removed': ['bindingId'],
+  'review-added': ['reviewId', 'claimId', 'claimVersionId'],
+  'dependency-added': ['dependencyId', 'claimId', 'dependsOnClaimId', 'status'],
+  'dependency-confirmed': ['dependencyId'],
+  'dependency-removed': ['dependencyId'],
+  note: ['text'],
+}
 
 class Validator {
   errors: string[] = []
@@ -205,19 +219,26 @@ export function importWorkspace(json: string): ImportResult {
   const history: HistoryEvent[] = []
   if (!Array.isArray(raw.history)) v.fail('history must be an array')
   else {
-    for (const ev of raw.history) {
-      if (!isObj(ev) || !isStr(ev.id) || !isStr(ev.at) || !isStr(ev.type) || !EVENT_TYPES.has(ev.type)) {
-        v.fail('history: invalid event')
-        continue
+    raw.history.forEach((ev: unknown, idx: number) => {
+      if (!isObj(ev) || !isStr(ev.id) || !ID_RE.test(ev.id) || !isStr(ev.at) || !isStr(ev.type) || !(ev.type in EVENT_FIELDS)) {
+        v.fail(`history[${idx}]: invalid event (id, at and a known type are required; ids match ${ID_RE})`)
+        return
       }
-      // Keep only string/known fields; drop anything else.
-      const clean: Obj = {}
-      for (const [k, val] of Object.entries(ev)) {
-        if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue
-        if (isStr(val)) clean[k] = val
+      const clean: Obj = { id: ev.id, at: ev.at, type: ev.type }
+      for (const field of EVENT_FIELDS[ev.type]) {
+        const val = ev[field]
+        if (!isStr(val)) {
+          v.fail(`history[${idx}] (${ev.id}): ${ev.type} requires string field "${field}"`)
+          return
+        }
+        clean[field] = val
+      }
+      if (ev.type === 'dependency-added' && !DEP_STATUS.has(clean.status as string)) {
+        v.fail(`history[${idx}] (${ev.id}): invalid dependency status`)
+        return
       }
       history.push(clean as unknown as HistoryEvent)
-    }
+    })
   }
 
   if (v.errors.length) return { ok: false, errors: v.errors }
@@ -291,7 +312,8 @@ export function importWorkspace(json: string): ImportResult {
   // nextId must exceed every numeric id suffix, otherwise new ids could collide.
   let maxId = 0
   const bump = (id: ID) => {
-    maxId = Math.max(maxId, Number(id.slice(id.lastIndexOf('_') + 1)))
+    const n = Number(id.slice(id.lastIndexOf('_') + 1))
+    if (Number.isFinite(n)) maxId = Math.max(maxId, n)
   }
   for (const rec of [sources, sourceVersions, claims, claimVersions, bindings, reviews, dependencies]) Object.keys(rec).forEach(bump)
   history.forEach((h) => bump(h.id))

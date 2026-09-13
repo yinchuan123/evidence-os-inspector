@@ -100,7 +100,7 @@ export function ClaimsPane({ ws, setWs, s, d, states, selectedClaimId, setSelect
       </ul>
 
       <h3>{s.addClaims}</h3>
-      <textarea data-testid="add-claims-text" value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={s.addClaimsPlaceholder} />
+      <textarea data-testid="add-claims-text" aria-label={s.addClaims} value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={s.addClaimsPlaceholder} />
       <div className="row">
         <button className="primary" data-testid="add-claim-single" onClick={addOne} disabled={!draft.trim()}>
           {s.addAsOne}
@@ -165,7 +165,7 @@ function ClaimEditor({ ws, setWs, s, claimId }: { ws: Workspace; setWs: (ws: Wor
         <input type="text" value={editLabel} onChange={(e) => setEditLabel(e.target.value)} onBlur={saveLabel} style={{ flex: 1 }} aria-label={s.labelField} />
       </div>
       <label className="field">{s.claimText}</label>
-      <textarea data-testid="claim-edit-text" value={editText} onChange={(e) => setEditText(e.target.value)} />
+      <textarea data-testid="claim-edit-text" aria-label={s.claimText} value={editText} onChange={(e) => setEditText(e.target.value)} />
       <div className="row">
         <button data-testid="claim-edit-save" onClick={saveEdit} disabled={editText.trim() === '' || editText === headText}>
           {s.saveClaimText}

@@ -8,9 +8,9 @@ executable form of these rules.
 
 | Object | Identity | Mutable fields | Immutable fields |
 |---|---|---|---|
-| Source | `src_N` | title, doi, url | creation time |
+| Source | `src_N` | title (doi and url are set at creation; no editor in v0.1) | creation time |
 | Source version | `sv_N` | none | text, SHA-256 content hash, version number, note |
-| Claim | `clm_N` | label (display only), order | creation time |
+| Claim | `clm_N` | label (display only) | order (assigned at creation), creation time |
 | Claim version | `cv_N` | none | text, content hash, version number |
 | Binding | `bnd_N` | none (can be removed) | claim, source **version**, start, end, excerpt |
 | Review | `rev_N` | none | claim **version**, label, rationale, reviewer, basis snapshot |
@@ -24,7 +24,8 @@ Ids are sequential; the numeric suffix also gives creation order.
 - Editing source text or claim text creates a new version and moves the
   "head" pointer. Identical text is a no-op.
 - Renaming a source or relabelling a claim changes a display field only.
-  It creates no version and triggers nothing.
+  It creates no version and never affects any review state; renaming a source
+  is recorded as a `source-renamed` history event.
 - The content hash is SHA-256 over the UTF-8 text. Equal hash means equal
   recorded text. Nothing else.
 
@@ -35,10 +36,12 @@ Ids are sequential; the numeric suffix also gives creation order.
   excerpt text at the time of binding. Import re-checks that the excerpt still
   equals the slice.
 - Plain text has no pages, so no page numbers are stored or invented.
-- When a source has a newer version, bindings on the older version are
-  **superseded** for that source. The review pane can search for the old
-  excerpt in the new version and offer to re-bind at the found position; it
-  does so only when the excerpt occurs exactly once, and only on your click.
+- A binding becomes **superseded** once the same claim has a binding to a
+  newer version of the same source. Until then it stays active, and a source
+  revision shows up on the claim as the `source-changed` reason. The review
+  pane can search for the old excerpt in the new version and offer to re-bind
+  at the found position; it does so only when the excerpt occurs exactly once,
+  and only on your click.
 
 ## Reviews
 
@@ -64,7 +67,7 @@ current             the latest review's basis matches the present state
 needs-re-review     at least one reason below applies
 ```
 
-Reasons, in the order they are checked:
+Reasons (any subset may apply to one claim):
 
 1. `claim-edited`: claim head version differs from the reviewed version.
 2. `source-changed`: a basis source's head version differs from the reviewed one.
@@ -81,7 +84,7 @@ change a claim's state.
 
 ## Impact of a source revision
 
-`computeImpact(source, from, to)` returns:
+`computeImpact(ws, { sourceId, fromVersionId, toVersionId })` returns:
 
 - `direct`: claims with any binding to the source;
 - `indirect`: claims reachable from direct claims by following confirmed
@@ -102,7 +105,9 @@ in the demos is hard-coded.
 ## Import safety
 
 The JSON importer validates the format id and version, field types, id
-patterns, referential integrity, hashes, spans, duplicate edges and cycles. It
-copies only known fields and ignores everything else, so a crafted file cannot
-smuggle extra data into the workspace. Text from files is rendered as text;
-links are emitted only for `http`/`https` URLs and well-formed DOIs.
+patterns (records and history events), referential integrity, hashes, spans,
+duplicate edges and cycles. Records are rebuilt from a fixed field list, and
+history events keep only the fields defined for their type; unknown fields are
+dropped everywhere. Stored review labels must be one of the four human labels;
+`unreviewed` is a derived state and is refused. Text from files is rendered as
+text; links are emitted only for `http`/`https` URLs and well-formed DOIs.

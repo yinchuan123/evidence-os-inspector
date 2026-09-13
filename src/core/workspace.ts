@@ -394,6 +394,7 @@ export function addReview(
   clock: Clock = systemClock,
 ) {
   const claim = requireClaim(ws, args.claimId)
+  if (args.label === 'unreviewed') throw new Error('"unreviewed" is a derived state, not a review label')
   const basisSources: ReviewBasisSource[] = activeBindingsOf(ws, claim.id).map((b) => ({
     sourceId: b.sourceId,
     sourceVersionId: b.sourceVersionId,

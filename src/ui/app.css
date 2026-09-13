@@ -263,11 +263,18 @@ a.button {
 .landing li {
   margin: 4px 0;
 }
-.landing img.shot {
+.landing .shot {
+  display: block;
+  width: 100%;
   max-width: 100%;
+  height: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
   margin: 8px 0;
+  background: #fff;
+}
+.landing details summary {
+  cursor: pointer;
 }
 .landing footer {
   margin-top: 40px;
@@ -428,6 +435,9 @@ a.button {
 .row select {
   width: auto;
   flex: 1 1 160px;
+  min-width: 0;
+  max-width: 100%;
+  text-overflow: ellipsis;
 }
 
 blockquote.excerpt {
@@ -451,6 +461,24 @@ table.compact td {
   text-align: left;
   vertical-align: top;
   overflow-wrap: anywhere;
+}
+table.compact td.nowrap {
+  white-space: nowrap;
+}
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.topbar .brand {
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 3px;
+}
+.topbar .brand:hover {
+  text-decoration-color: var(--accent);
 }
 fieldset.labels {
   border: 1px solid var(--line);
@@ -528,8 +556,8 @@ fieldset.labels label {
     padding: 2px 6px;
     font-size: 12px;
   }
-  .topbar .home-btn {
-    display: none;
+  .topbar .title {
+    font-size: 14px;
   }
   .hero h1 {
     font-size: 28px;

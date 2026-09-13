@@ -10,7 +10,7 @@ under a future phase is implemented yet unless the changelog says so.
 - Confirmed / unconfirmed dependencies with propagation of "needs re-review".
 - Impact report for source revisions; JSON round-trip; standalone HTML report.
 - Three synthetic demos; English and Simplified Chinese interface; desktop and
-  narrow-screen layouts; strict CSP, no network use.
+  narrow-screen layouts; strict CSP, no requests to any other origin.
 
 ## Next: real use and fixes (first 1–2 weeks after release)
 

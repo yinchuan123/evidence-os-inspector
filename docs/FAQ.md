@@ -11,7 +11,9 @@ person to confirm; proposals would be clearly marked as unreviewed.
 **Does it upload my text?**
 No. The app runs in your browser tab. The production build ships a
 Content-Security-Policy with `connect-src 'none'`, so the page cannot make
-network requests after it loads. Exporting creates a file on your computer.
+fetch, XHR or WebSocket requests at all; after load the only requests are for
+the demo media on the same static host, and nothing you type is sent anywhere.
+Exporting creates a file on your computer.
 The hosting page (GitHub Pages) keeps ordinary web-server access logs like any
 static site; that is the host's log, not your text.
 
@@ -39,13 +41,15 @@ marked "needs re-review".
 Export JSON. It contains all versions, bindings, dependencies, reviews and
 history. Import it into the app on any machine. The format has a version
 identifier; the app refuses files it does not understand rather than guessing.
-Within one browser session the current workspace is also kept in session
-storage so an accidental refresh does not lose it.
+Within one browser session your own workspace ("Review your text") is also
+kept in session storage so an accidental refresh does not lose it. Demo
+workspaces are rebuilt fresh on every load and never overwrite yours.
 
 **Can I share results with a co-author?**
 Export an HTML report. It is a single self-contained file with claims, bound
-passages, states, reasons and history. Full source text is not included unless
-you choose to include it. Send it however you normally send files.
+passages, states, reasons and history. Full source text is included only if
+you tick "include full source text" before exporting. Send it however you
+normally send files.
 
 **What does the content hash prove?**
 Only that the recorded text is identical or not. It does not establish
@@ -71,7 +75,7 @@ recommendation, and no institution or journal endorses it.
 没有。v0.1 不包含语言模型，也不调用任何 AI 服务。句子切分只是简单规则。所有审阅标签都由人填写。未来的适配器可能让 AI 助手*提议*绑定或理由，由人确认；提议会被清楚标为未审阅。
 
 **会上传我的文字吗？**
-不会。应用在你的浏览器标签页内运行。生产构建的 Content-Security-Policy 含 `connect-src 'none'`，页面加载后无法发起网络请求。导出只在你的电脑上生成文件。托管页面（GitHub Pages）像任何静态站点一样有普通的 Web 访问日志，那是托管方的日志，不是你的文字。
+不会。应用在你的浏览器标签页内运行。生产构建的 Content-Security-Policy 含 `connect-src 'none'`，页面完全无法发起 fetch、XHR 或 WebSocket 请求；加载后的请求只有同一静态站点上的演示媒体，你输入的内容不会发送到任何地方。导出只在你的电脑上生成文件。托管页面（GitHub Pages）像任何静态站点一样有普通的 Web 访问日志，那是托管方的日志，不是你的文字。
 
 **它会判断主张是否真实或被支持吗？**
 不会。它记录*你*的判断（所述范围内支持、部分支持、不支持、无法判断），连同你当时查看的来源版本和片段。定位到片段不等于片段支持主张；来源缺失也不等于主张错误。
@@ -83,10 +87,10 @@ recommendation, and no institution or journal endorses it.
 修订来源会创建一个新的不可变版本。工具列出绑定到该来源的主张（直接）、经已确认关系依赖它们的主张（间接）、只能经未确认关系到达的主张（潜在，不传播），以及其余主张（不受影响）。直接和间接受影响的主张被标为"需复核"。
 
 **如何继续之前的工作？**
-导出 JSON。它包含全部版本、绑定、依赖、审阅和历史。在任何机器上导入即可。格式带版本标识；应用拒绝无法理解的文件，而不是猜测。同一浏览器会话内当前工作区也会保存在 session storage，误刷新不会丢失。
+导出 JSON。它包含全部版本、绑定、依赖、审阅和历史。在任何机器上导入即可。格式带版本标识；应用拒绝无法理解的文件，而不是猜测。同一浏览器会话内，你自己的工作区（"审阅自己的文字"）会保存在 session storage，误刷新不会丢失。演示工作区每次重新构建，不会覆盖你的工作区。
 
 **能和合作者分享结果吗？**
-导出 HTML 报告。它是一个独立文件，包含主张、绑定片段、状态、原因和历史。默认不含来源全文，除非你选择包含。用你平时发文件的方式发送即可。
+导出 HTML 报告。它是一个独立文件，包含主张、绑定片段、状态、原因和历史。只有导出前勾选"报告含来源全文"才会包含来源全文。用你平时发文件的方式发送即可。
 
 **内容哈希证明什么？**
 只证明记录的文本是否完全相同。它不证明作者身份、发表状态或科学真实性。

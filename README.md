@@ -37,7 +37,7 @@ All demo studies are invented. They show the mechanics, not real evidence.
 
 ## Three scenarios
 
-1. **Correction impact.** Five claims, three sources, two confirmed dependencies.
+1. **Correction impact.** Five claims, three sources, three confirmed dependencies.
    Source A corrects its main result. The tool computes, from recorded bindings
    and confirmed dependencies, that C1 and C4 need re-review and the rest do not.
 2. **Scope check.** A source reports an association in adults over 70 with a
@@ -62,8 +62,8 @@ All demo studies are invented. They show the mechanics, not real evidence.
   *Needs re-review* with the reason and the dependency path. Unconfirmed links
   only produce a "potential impact" note.
 - **Export is explicit.** JSON keeps everything for continued work; the HTML
-  report contains claims, bound passages, states and history, without full
-  source text unless you ask for it.
+  report contains claims, bound passages, states and history, and includes full
+  source text only if you tick "include full source text" before exporting.
 
 Details: [docs/CONCEPTS.md](docs/CONCEPTS.md) · JSON format: [docs/FORMAT.md](docs/FORMAT.md)
 
@@ -80,14 +80,19 @@ Details: [docs/CONCEPTS.md](docs/CONCEPTS.md) · JSON format: [docs/FORMAT.md](d
 
 ## Privacy
 
-Your text is processed in the browser. The production build ships a strict
-Content-Security-Policy that forbids any network connection after load
-(`connect-src 'none'`). Exporting creates a local file. Ordinary web-server
-access logs for the hosting page belong to GitHub Pages, like any static site.
+Your text is processed in the browser and never leaves it. The production
+build ships a strict Content-Security-Policy: `connect-src 'none'` blocks
+fetch, XHR and WebSockets entirely, and scripts, styles, images and media may
+load only from the site's own origin. After load, the only requests the page
+makes are for the demo media on that same static host; nothing goes to any
+other origin. Exporting creates a local file. Your own workspace is kept in the
+tab's session storage so a refresh does not lose it; demo workspaces are rebuilt
+fresh on every load. Ordinary web-server access logs for the hosting page belong
+to GitHub Pages, like any static site.
 
 ## Run locally
 
-Requires Node.js 20 or newer.
+Requires Node.js 22.12 or newer (the pinned test runner needs it).
 
 ```bash
 git clone https://github.com/yinchuan123/evidence-os-inspector.git

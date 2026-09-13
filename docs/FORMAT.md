@@ -40,7 +40,8 @@ other schema and makes no compatibility claim beyond itself.
 
 - `format` and `formatVersion` must match exactly.
 - Every record key equals its `id`; ids match `^[a-z]+_\d+$`.
-- Field types as above; unknown fields are dropped.
+- Field types as above. Optional fields: `meta.description`, source `doi`/`url`, source-version `note`, claim `label`, review `reviewer`, dependency `note`. Unknown fields are dropped from records; history events keep only the fields defined for their `type` (see below), and an event with a missing field or an id outside the pattern is rejected.
+- Review `label` must be one of `supported-in-scope`, `partially-supported`, `not-supported`, `cannot-determine`.
 - `contentHash` must equal SHA-256 of `text` (UTF-8, lower-case hex).
 - Head versions must exist and belong to their owner.
 - Bindings must reference an existing claim and a version of the stated source;
@@ -49,6 +50,23 @@ other schema and makes no compatibility claim beyond itself.
   upstream reviews.
 - Dependencies: no self-edges, no duplicate edges, no cycles.
 - `nextId` is raised if any id suffix is larger, so new ids cannot collide.
+
+## History event fields
+
+| type | fields |
+|---|---|
+| workspace-created | – |
+| source-added | sourceId, versionId |
+| source-revised | sourceId, fromVersionId, toVersionId |
+| source-renamed | sourceId, from, to |
+| claim-added | claimId, versionId |
+| claim-edited | claimId, fromVersionId, toVersionId |
+| binding-added | bindingId, claimId, sourceVersionId |
+| binding-removed | bindingId |
+| review-added | reviewId, claimId, claimVersionId |
+| dependency-added | dependencyId, claimId, dependsOnClaimId, status |
+| dependency-confirmed / dependency-removed | dependencyId |
+| note | text |
 
 ## Character offsets
 

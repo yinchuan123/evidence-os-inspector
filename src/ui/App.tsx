@@ -37,8 +37,11 @@ export function App() {
   const [demo, setDemo] = useState<BuiltDemo | null>(null)
   const [demoId, setDemoId] = useState<DemoId | null>(null)
 
+  // Only the user's own workspace is kept in session storage. Demo workspaces are
+  // rebuilt fresh on every load so they never overwrite the user's work.
   const setWs = useCallback((next: Workspace) => {
     setWsState(next)
+    if (next.meta.synthetic) return
     try {
       sessionStorage.setItem(SESSION_KEY, exportWorkspace(next))
     } catch {
@@ -114,7 +117,7 @@ export function App() {
   }, [locale])
 
   if (!ws) {
-    return <Landing locale={locale} onDemo={openDemo} onOwn={() => openOwn(true)} onToggleLocale={toggleLocale} />
+    return <Landing locale={locale} onDemo={openDemo} onOwn={() => openOwn(false)} onToggleLocale={toggleLocale} />
   }
   return (
     <WorkspaceView

@@ -157,13 +157,13 @@ export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId,
       {adding ? (
         <div className="card">
           <label className="field">{s.sourceTitle}</label>
-          <input type="text" data-testid="new-source-title" value={nTitle} onChange={(e) => setNTitle(e.target.value)} />
+          <input type="text" data-testid="new-source-title" aria-label={s.sourceTitle} value={nTitle} onChange={(e) => setNTitle(e.target.value)} />
           <label className="field">{s.sourceDoi}</label>
-          <input type="text" data-testid="new-source-doi" value={nDoi} onChange={(e) => setNDoi(e.target.value)} />
+          <input type="text" data-testid="new-source-doi" aria-label={s.sourceDoi} value={nDoi} onChange={(e) => setNDoi(e.target.value)} />
           <label className="field">{s.sourceUrl}</label>
-          <input type="text" data-testid="new-source-url" value={nUrl} onChange={(e) => setNUrl(e.target.value)} />
+          <input type="text" data-testid="new-source-url" aria-label={s.sourceUrl} value={nUrl} onChange={(e) => setNUrl(e.target.value)} />
           <label className="field">{s.sourceText}</label>
-          <textarea data-testid="new-source-text" value={nText} onChange={(e) => setNText(e.target.value)} style={{ minHeight: 140 }} />
+          <textarea data-testid="new-source-text" aria-label={s.sourceText} value={nText} onChange={(e) => setNText(e.target.value)} style={{ minHeight: 140 }} />
           <div className="row">
             <button className="primary" data-testid="new-source-save" onClick={saveNew} disabled={!nTitle.trim() || !nText.trim()}>
               {s.saveSource}
@@ -229,7 +229,7 @@ export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId,
                 <option key={v.id} value={v.id}>
                   v{v.versionNo}
                   {v.id === head.id ? ` (${s.current})` : ''}
-                  {v.note ? ` — ${v.note}` : ''}
+                  {v.note ? ` — ${v.note.length > 40 ? v.note.slice(0, 40) + '…' : v.note}` : ''}
                 </option>
               ))}
             </select>
@@ -259,9 +259,9 @@ export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId,
                   {s.loadSuggested}
                 </button>
               ) : null}
-              <textarea data-testid="revise-text" value={revText} onChange={(e) => setRevText(e.target.value)} style={{ minHeight: 160 }} />
+              <textarea data-testid="revise-text" aria-label={s.reviseSource} value={revText} onChange={(e) => setRevText(e.target.value)} style={{ minHeight: 160 }} />
               <label className="field">{s.revisionNote}</label>
-              <input type="text" data-testid="revise-note" value={revNote} onChange={(e) => setRevNote(e.target.value)} />
+              <input type="text" data-testid="revise-note" aria-label={s.revisionNote} value={revNote} onChange={(e) => setRevNote(e.target.value)} />
               <div className="row">
                 <button className="primary" data-testid="save-revision" onClick={saveRevision}>
                   {s.saveRevision}
