@@ -29,13 +29,12 @@ async function selectSourceText(page: Page, needle: string) {
 
 test.describe('demo 1: correction impact', () => {
   test('applying the suggested correction flags C1 directly and C4 indirectly, others stay current', async ({ page }) => {
-    // Every request must go to the app's own origin: no analytics, fonts, or data exfiltration.
-    const external: string[] = []
+    // Every request, including those made while the page loads, must go to the app's own origin.
+    const requested: string[] = []
+    page.on('request', (r) => requested.push(r.url()))
     await page.goto('')
     const ownOrigin = new URL(page.url()).origin
-    page.on('request', (r) => {
-      if (new URL(r.url()).origin !== ownOrigin) external.push(r.url())
-    })
+    const external = () => requested.filter((u) => new URL(u).origin !== ownOrigin)
     await page.getByTestId('try-demo-hero').click()
     await expect(page.getByTestId('synthetic-badge')).toBeVisible()
     for (const l of ['C1', 'C2', 'C3', 'C4', 'C5']) expect(await state(page, l)).toBe('current')
@@ -85,7 +84,8 @@ test.describe('demo 1: correction impact', () => {
     // C4 remains flagged because its upstream verdict changed
     expect(await state(page, 'C4')).toBe('needs-re-review')
 
-    expect(external).toEqual([])
+    expect(requested.length).toBeGreaterThan(0)
+    expect(external()).toEqual([])
   })
 })
 

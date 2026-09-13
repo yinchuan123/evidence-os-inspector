@@ -44,6 +44,12 @@ const isStr = (v: unknown): v is string => typeof v === 'string'
 const isOptStr = (v: unknown): v is string | undefined => v === undefined || typeof v === 'string'
 const isInt = (v: unknown): v is number => Number.isInteger(v)
 const ID_RE = /^[a-z]+_\d+$/
+// Id numbers are bounded well below Number.MAX_SAFE_INTEGER so that nextId + 1
+// stays exact. Without this, an id like ev_99999999999999999999 imports fine and
+// every new object afterwards receives the same id, silently overwriting data.
+export const MAX_ID_NUMBER = 2 ** 48
+const idNumberOf = (id: string) => Number(id.slice(id.lastIndexOf('_') + 1))
+const isValidId = (id: unknown): id is string => isStr(id) && ID_RE.test(id) && idNumberOf(id) <= MAX_ID_NUMBER
 
 // 'unreviewed' is the derived state of a claim with no review; it is never a stored review label.
 const REVIEW_LABELS = new Set(['supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine'])
@@ -82,7 +88,7 @@ function readRecord<T>(v: Validator, raw: unknown, name: string, parse: (id: ID,
     return out
   }
   for (const [key, val] of Object.entries(raw)) {
-    if (!ID_RE.test(key)) {
+    if (!isValidId(key)) {
       v.fail(`${name}: invalid id "${key}"`)
       continue
     }
@@ -119,8 +125,8 @@ export function importWorkspace(json: string): ImportResult {
     : { title: '', synthetic: false }
 
   let nextId = 1
-  if (isInt(raw.nextId) && raw.nextId >= 1) nextId = raw.nextId
-  else v.fail('nextId must be a positive integer')
+  if (isInt(raw.nextId) && raw.nextId >= 1 && raw.nextId <= MAX_ID_NUMBER + 1) nextId = raw.nextId
+  else v.fail(`nextId must be a positive integer no larger than ${MAX_ID_NUMBER + 1}`)
 
   const sourceVersions = readRecord<SourceVersion>(v, raw.sourceVersions, 'sourceVersions', (id, o) => {
     if (!isStr(o.sourceId) || !isInt(o.versionNo) || !isStr(o.text) || !isStr(o.contentHash) || !isStr(o.createdAt) || !isOptStr(o.note)) {
@@ -178,7 +184,11 @@ export function importWorkspace(json: string): ImportResult {
   })
 
   const reviews = readRecord<Review>(v, raw.reviews, 'reviews', (id, o) => {
-    if (!isStr(o.claimId) || !isStr(o.claimVersionId) || !isStr(o.label) || !REVIEW_LABELS.has(o.label) || !isStr(o.rationale) || !isOptStr(o.reviewer) || !isStr(o.createdAt)) {
+    if (isStr(o.label) && !REVIEW_LABELS.has(o.label)) {
+      v.fail(`reviews.${id}: label "${o.label}" is not one of ${[...REVIEW_LABELS].join(', ')}`)
+      return null
+    }
+    if (!isStr(o.claimId) || !isStr(o.claimVersionId) || !isStr(o.label) || !isStr(o.rationale) || !isOptStr(o.reviewer) || !isStr(o.createdAt)) {
       v.fail(`reviews.${id}: wrong field types`)
       return null
     }
@@ -220,8 +230,9 @@ export function importWorkspace(json: string): ImportResult {
   if (!Array.isArray(raw.history)) v.fail('history must be an array')
   else {
     raw.history.forEach((ev: unknown, idx: number) => {
-      if (!isObj(ev) || !isStr(ev.id) || !ID_RE.test(ev.id) || !isStr(ev.at) || !isStr(ev.type) || !(ev.type in EVENT_FIELDS)) {
-        v.fail(`history[${idx}]: invalid event (id, at and a known type are required; ids match ${ID_RE})`)
+      // Object.hasOwn, not `in`: inherited names such as "constructor" must not count as known types.
+      if (!isObj(ev) || !isValidId(ev.id) || !isStr(ev.at) || !isStr(ev.type) || !Object.hasOwn(EVENT_FIELDS, ev.type)) {
+        v.fail(`history[${idx}]: invalid event (id, at and a known type are required; ids match ${ID_RE} with a number up to ${MAX_ID_NUMBER})`)
         return
       }
       const clean: Obj = { id: ev.id, at: ev.at, type: ev.type }

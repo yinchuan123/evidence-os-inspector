@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Locale } from '../core/i18n'
 import { exportWorkspace, importWorkspace } from '../core/serialize'
 import type { Workspace } from '../core/types'
@@ -38,20 +38,26 @@ export function App() {
   const [demoId, setDemoId] = useState<DemoId | null>(null)
 
   // Only the user's own workspace is kept in session storage. Demo workspaces are
-  // rebuilt fresh on every load so they never overwrite the user's work.
-  const setWs = useCallback((next: Workspace) => {
-    setWsState(next)
-    if (next.meta.synthetic) return
+  // rebuilt fresh on every load so they never overwrite the user's work. What
+  // counts is how the workspace was opened (demo route or own workspace), not the
+  // file's synthetic flag: a demo export the user imports becomes their workspace.
+  const persistRef = useRef(false)
+  const persist = (next: Workspace) => {
     try {
       sessionStorage.setItem(SESSION_KEY, exportWorkspace(next))
     } catch {
       /* quota or unavailable: in-memory only */
     }
+  }
+  const setWs = useCallback((next: Workspace) => {
+    setWsState(next)
+    if (persistRef.current) persist(next)
   }, [])
 
   const openDemo = useCallback(
     (id: DemoId) => {
       const built = buildDemo(id)
+      persistRef.current = false
       setDemo(built)
       setDemoId(id)
       setWs(built.ws)
@@ -62,6 +68,7 @@ export function App() {
 
   const openOwn = useCallback(
     (fresh: boolean) => {
+      persistRef.current = true
       setDemo(null)
       setDemoId(null)
       let restored: Workspace | null = null
@@ -91,6 +98,7 @@ export function App() {
       } else if (r.kind === 'workspace') {
         if (!ws || demoId) openOwn(false)
       } else {
+        persistRef.current = false
         setWsState(null)
         setDemo(null)
         setDemoId(null)
@@ -129,15 +137,31 @@ export function App() {
       onHome={() => {
         window.location.hash = ''
       }}
-      onNew={() => {
-        if (window.confirm(UI[locale].ws.confirmDiscard)) {
-          try {
-            sessionStorage.removeItem(SESSION_KEY)
-          } catch {
-            /* ignore */
-          }
-          openOwn(true)
+      onWorkspaceButton={() => {
+        // Inside a demo this button only opens the user's own workspace; it never discards it.
+        if (demoId) {
+          openOwn(false)
+          return
         }
+        const claims = Object.keys(ws.claims).length
+        const sources = Object.keys(ws.sources).length
+        const empty = claims === 0 && sources === 0
+        if (!empty && !window.confirm(UI[locale].ws.confirmDiscard(ws.meta.title, claims, sources))) return
+        try {
+          sessionStorage.removeItem(SESSION_KEY)
+        } catch {
+          /* ignore */
+        }
+        openOwn(true)
+      }}
+      onImported={(next) => {
+        // An explicitly imported file becomes the user's own workspace.
+        persistRef.current = true
+        persist(next)
+        setDemo(null)
+        setDemoId(null)
+        setWsState(next)
+        if (window.location.hash !== '#workspace') window.location.hash = 'workspace'
       }}
       onToggleLocale={toggleLocale}
     />

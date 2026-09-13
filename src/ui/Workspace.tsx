@@ -22,11 +22,12 @@ export interface WorkspaceViewProps {
   demo: BuiltDemo | null
   demoId: DemoId | null
   onHome: () => void
-  onNew: () => void
+  onWorkspaceButton: () => void
+  onImported: (ws: WS) => void
   onToggleLocale: () => void
 }
 
-export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, onToggleLocale }: WorkspaceViewProps) {
+export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorkspaceButton, onImported, onToggleLocale }: WorkspaceViewProps) {
   const s = UI[locale].ws
   const nav = UI[locale].nav
   const d = t(locale)
@@ -52,7 +53,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
         return
       }
       setImportError(null)
-      setWs(res.ws)
+      onImported(res.ws)
       setSelectedClaimId(null)
       setSelectedSourceId(null)
       setImpact(null)
@@ -96,8 +97,8 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onNew, 
           {s.importJson}
         </button>
         <input ref={importRef} data-testid="import-json-input" type="file" accept=".json,application/json" className="sr-only" onChange={(e) => onImport(e.target.files?.[0])} />
-        <button className="small" onClick={onNew}>
-          {s.newWorkspace}
+        <button className="small" data-testid="workspace-button" onClick={onWorkspaceButton}>
+          {demoId ? s.openMyWorkspace : s.newWorkspace}
         </button>
         <button className="small" data-testid="locale-toggle" onClick={onToggleLocale}>
           {nav.switchLocale}

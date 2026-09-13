@@ -50,7 +50,9 @@ const en = {
     importJson: 'Import JSON',
     importError: 'Import refused',
     newWorkspace: 'New workspace',
-    confirmDiscard: 'Discard the current workspace? Export it first if you want to keep it.',
+    openMyWorkspace: 'My workspace',
+    confirmDiscard: (title: string, claims: number, sources: number) =>
+      `Start a new empty workspace? This discards your workspace "${title}" (${claims} claim${claims === 1 ? '' : 's'}, ${sources} source${sources === 1 ? '' : 's'}). Export JSON first if you want to keep it.`,
     tabs: { claims: 'Claims', source: 'Sources', review: 'Review', history: 'History' },
     guideTitle: 'Demo guide',
     guideCorrection: [
@@ -202,7 +204,9 @@ const zhCN: UIStrings = {
     importJson: '导入 JSON',
     importError: '导入被拒绝',
     newWorkspace: '新建工作区',
-    confirmDiscard: '放弃当前工作区？如需保留请先导出。',
+    openMyWorkspace: '我的工作区',
+    confirmDiscard: (title: string, claims: number, sources: number) =>
+      `新建空白工作区？这会丢弃你的工作区"${title}"（${claims} 条主张，${sources} 个来源）。如需保留，请先导出 JSON。`,
     tabs: { claims: '主张', source: '来源', review: '审阅', history: '历史' },
     guideTitle: '演示指引',
     guideCorrection: [

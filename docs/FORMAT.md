@@ -39,7 +39,8 @@ other schema and makes no compatibility claim beyond itself.
 ## Rules checked on import
 
 - `format` and `formatVersion` must match exactly.
-- Every record key equals its `id`; ids match `^[a-z]+_\d+$`.
+- Every record key equals its `id`; ids match `^[a-z]+_\d+$` and the number is at most 2^48 (so new ids can always be allocated exactly). The same rule applies to history event ids.
+- `nextId` is a positive integer no larger than 2^48 + 1.
 - Field types as above. Optional fields: `meta.description`, source `doi`/`url`, source-version `note`, claim `label`, review `reviewer`, dependency `note`. Unknown fields are dropped from records; history events keep only the fields defined for their `type` (see below), and an event with a missing field or an id outside the pattern is rejected.
 - Review `label` must be one of `supported-in-scope`, `partially-supported`, `not-supported`, `cannot-determine`.
 - `contentHash` must equal SHA-256 of `text` (UTF-8, lower-case hex).

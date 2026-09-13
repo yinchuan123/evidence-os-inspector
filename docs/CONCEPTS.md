@@ -17,7 +17,7 @@ executable form of these rules.
 | Dependency | `dep_N` | status (unconfirmed → confirmed) | claim, depends-on claim |
 | History event | `ev_N` | none | type, time, references |
 
-Ids are sequential; the numeric suffix also gives creation order.
+Ids are sequential; the numeric suffix also gives creation order. Imported ids are limited to numbers up to 2^48 so the next id is always exact.
 
 ## Versioning
 
@@ -106,7 +106,7 @@ in the demos is hard-coded.
 
 The JSON importer validates the format id and version, field types, id
 patterns (records and history events), referential integrity, hashes, spans,
-duplicate edges and cycles. Records are rebuilt from a fixed field list, and
+duplicate edges and cycles, and it returns a list of errors rather than throwing. Records are rebuilt from a fixed field list, and
 history events keep only the fields defined for their type; unknown fields are
 dropped everywhere. Stored review labels must be one of the four human labels;
 `unreviewed` is a derived state and is refused. Text from files is rendered as

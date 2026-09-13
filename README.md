@@ -85,9 +85,9 @@ build ships a strict Content-Security-Policy: `connect-src 'none'` blocks
 fetch, XHR and WebSockets entirely, and scripts, styles, images and media may
 load only from the site's own origin. After load, the only requests the page
 makes are for the demo media on that same static host; nothing goes to any
-other origin. Exporting creates a local file. Your own workspace is kept in the
-tab's session storage so a refresh does not lose it; demo workspaces are rebuilt
-fresh on every load. Ordinary web-server access logs for the hosting page belong
+other origin. Exporting creates a local file. Your own workspace (including any file you
+import) is kept in the tab's session storage so a refresh does not lose it;
+demo workspaces are rebuilt fresh on every load and never replace yours. Ordinary web-server access logs for the hosting page belong
 to GitHub Pages, like any static site.
 
 ## Run locally

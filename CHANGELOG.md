@@ -3,6 +3,37 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-alpha.3] - 2026-09-14
+
+Point release from the post-release verification of alpha.2 on the live site
+(two independent checkers per earlier finding). The eight re-checked fixes held;
+the checkers found four adjacent defects, fixed here.
+
+### Fixed
+- Import accepted id numbers beyond the exact-integer range (for example
+  `ev_99999999999999999999`); every object created afterwards received the same
+  id and silently overwrote the previous one. Ids and `nextId` are now bounded
+  (2^48) and out-of-range values are refused.
+- A history event whose type was an inherited object name (`constructor`,
+  `__proto__`, `toString`) made the importer throw and leak an internal error
+  message; it now returns a normal validation error.
+- "New workspace" pressed inside a demo discarded the user's own saved workspace
+  behind a prompt that read as if it meant the demo. Inside a demo the button is
+  now "My workspace" and only opens your workspace; in your own workspace the
+  prompt names the workspace and how many claims and sources it discards, and
+  an empty workspace is replaced without asking.
+- A JSON file exported from a demo and imported as your workspace was not saved,
+  so it and any edits vanished on refresh. Imported files now become your
+  workspace and persist; importing while viewing a demo moves you to it.
+- Stored review labels outside the four allowed values now get an error that
+  names the allowed labels.
+
+### Tests
+- 9 new unit tests (id bounds, inherited type names, label message) and 4 new
+  end-to-end flows (workspace safety); the demo flow now records requests made
+  during page load as well. Every new test was checked by re-introducing the
+  defect and watching it fail.
+
 ## [0.1.0-alpha.2] - 2026-09-13
 
 Point release from the pre-launch review (five review lenses plus adversarial
@@ -44,4 +75,4 @@ First public alpha.
 - Standalone HTML report with escaped content and no scripts.
 - Three synthetic demos: correction impact, scope check, missing-then-supplemented.
 - English and Simplified Chinese interface; desktop three-pane layout and narrow-screen tabs.
-- Strict Content-Security-Policy in production builds; no network requests after load.
+- Strict Content-Security-Policy in production builds; no network requests after load. (Overstated: same-origin demo media is fetched after load. Corrected in 0.1.0-alpha.2.)
