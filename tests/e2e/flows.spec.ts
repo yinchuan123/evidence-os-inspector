@@ -29,12 +29,13 @@ async function selectSourceText(page: Page, needle: string) {
 
 test.describe('demo 1: correction impact', () => {
   test('applying the suggested correction flags C1 directly and C4 indirectly, others stay current', async ({ page }) => {
+    // Every request must go to the app's own origin: no analytics, fonts, or data exfiltration.
     const external: string[] = []
-    page.on('request', (r) => {
-      const u = new URL(r.url())
-      if (u.hostname !== 'localhost' && u.hostname !== '127.0.0.1') external.push(r.url())
-    })
     await page.goto('')
+    const ownOrigin = new URL(page.url()).origin
+    page.on('request', (r) => {
+      if (new URL(r.url()).origin !== ownOrigin) external.push(r.url())
+    })
     await page.getByTestId('try-demo-hero').click()
     await expect(page.getByTestId('synthetic-badge')).toBeVisible()
     for (const l of ['C1', 'C2', 'C3', 'C4', 'C5']) expect(await state(page, l)).toBe('current')
