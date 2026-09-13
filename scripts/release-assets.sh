@@ -30,6 +30,8 @@ NAME="evidence-os-inspector-$TAG"
 npm run typecheck
 npm run lint
 npm test
+# e2e rebuilds dist itself, so run it first; the packaged build is made after it.
+npm run test:e2e
 VITE_BASE=/evidence-os-inspector/ npm run build
 echo "commit=$COMMIT" > dist/BUILD_INFO.txt
 echo "tag=$TAG" >> dist/BUILD_INFO.txt
@@ -37,7 +39,6 @@ echo "node=$(node --version)" >> dist/BUILD_INFO.txt
 echo "npm=$(npm --version)" >> dist/BUILD_INFO.txt
 echo "os=$(uname -s) $(uname -r) $(uname -m)" >> dist/BUILD_INFO.txt
 echo "built_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> dist/BUILD_INFO.txt
-npm run test:e2e
 
 # Deterministic zips: fixed order, no extra attrs, fixed timestamps.
 export TZ=UTC
