@@ -39,6 +39,7 @@ const en = {
     ],
     privacy: 'Your text is processed in the browser. The app makes no network requests after loading. Exporting creates a local file; nothing is shared unless you share it.',
     footer: 'MIT-licensed open source. Alpha software: expect rough edges and report them.',
+    videoSummary: '40-second recording with captions (English / 中文)',
   },
   ws: {
     syntheticBadge: 'Synthetic demo',
@@ -189,6 +190,7 @@ const zhCN: UIStrings = {
     ],
     privacy: '你的文字在浏览器内处理。应用加载后不发起任何网络请求。导出只生成本地文件；除非你自己分享，否则不会传给任何人。',
     footer: 'MIT 许可的开源软件。Alpha 版本：会有粗糙之处，欢迎反馈。',
+    videoSummary: '40 秒带字幕录屏（English / 中文）',
   },
   ws: {
     syntheticBadge: '合成演示',

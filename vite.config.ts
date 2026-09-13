@@ -9,16 +9,16 @@ const base = process.env.VITE_BASE ?? '/'
 // styles, fonts, images, or connections of any kind. The dev server is
 // excluded because HMR needs a websocket.
 const CSP = [
-  "default-src 'none'",
+  "default-src 'self'",
   "script-src 'self'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data:",
+  "media-src 'self'",
   "font-src 'self'",
   "connect-src 'none'",
   "object-src 'none'",
   "base-uri 'none'",
   "form-action 'none'",
-  "frame-ancestors 'none'",
 ].join('; ')
 
 function cspPlugin(): Plugin {

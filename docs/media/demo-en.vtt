@@ -1,0 +1,26 @@
+WEBVTT
+
+1
+00:00:00.000 --> 00:00:05.000
+You wrote five sentences from three sources. Then source A publishes a correction.
+
+2
+00:00:05.000 --> 00:00:12.000
+Each claim is bound to a passage in a specific source version, with a recorded review.
+
+3
+00:00:12.000 --> 00:00:23.000
+Revise source A. Inspector lists what is affected: C1 directly, C4 through a confirmed dependency. C2, C3, C5 are untouched.
+
+4
+00:00:23.000 --> 00:00:28.500
+C4 shows why: the claim it depends on, C1, needs re-review. Path C1 → C4.
+
+5
+00:00:28.500 --> 00:00:33.500
+The earlier review stays in history. Nothing is flipped automatically.
+
+6
+00:00:33.500 --> 00:00:40.000
+Export a standalone report, or review your own text. Runs in the browser. No upload.
+

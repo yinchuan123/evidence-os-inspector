@@ -31,3 +31,6 @@ blob-report
 
 # local
 .npm-user-cache
+
+# generated from docs/media at build time
+public/media

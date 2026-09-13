@@ -53,6 +53,14 @@ export function Landing({
 
         <section>
           <img className="shot" src={media('demo-loop.gif')} alt="Screen recording: correcting source A marks claims C1 and C4 as needing re-review while C2, C3 and C5 stay reviewed." width={1280} height={800} loading="lazy" />
+          <details>
+            <summary className="muted">{s.videoSummary}</summary>
+            <video className="shot" controls preload="metadata" playsInline poster={media('shot-change-impact.png')} width={1280} height={800}>
+              <source src={media(locale === 'zh-CN' ? 'demo-zh.mp4' : 'demo-en.mp4')} type="video/mp4" />
+              <track kind="captions" srcLang="en" label="English" src={media('demo-en.vtt')} />
+              <track kind="captions" srcLang="zh-CN" label="中文" src={media('demo-zh.vtt')} />
+            </video>
+          </details>
         </section>
 
         <section>
