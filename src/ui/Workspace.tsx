@@ -42,7 +42,8 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
   const states = useMemo(() => allClaimStates(ws), [ws])
 
   const exportJson = () => downloadText(safeFilename(ws.meta.title, 'json'), exportWorkspace(ws), 'application/json')
-  const exportReport = () => downloadText(safeFilename(ws.meta.title + '-report', 'html'), renderReport(ws, { locale, includeSourceText }), 'text/html')
+  const exportReport = () =>
+    downloadText(safeFilename(ws.meta.title + (includeSourceText ? '-report-with-source-text' : '-report'), 'html'), renderReport(ws, { locale, includeSourceText }), 'text/html')
   const onImport = async (file: File | undefined) => {
     if (!file) return
     try {
@@ -71,7 +72,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
   return (
     <div className="workspace">
       <header className="topbar">
-        <a className="brand" href="#" data-testid="home-link" onClick={(e) => { e.preventDefault(); onHome() }}>
+        <a className="brand" href="#" data-testid="home-link" title={nav.home} onClick={(e) => { e.preventDefault(); onHome() }}>
           {d.appName}
         </a>
         <span className="title" data-testid="ws-title">
@@ -103,9 +104,6 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
         <button className="small" data-testid="locale-toggle" onClick={onToggleLocale}>
           {nav.switchLocale}
         </button>
-        <button className="small home-btn" onClick={onHome}>
-          {nav.home}
-        </button>
       </header>
 
       {importError ? (
@@ -124,7 +122,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
 
       {impact ? <ImpactBanner ws={ws} impact={impact} s={s} onDismiss={() => setImpact(null)} /> : null}
 
-      <nav className="tabs" aria-label="panes">
+      <nav className="tabs" aria-label={s.panesLabel}>
         {tabs.map((tb) => (
           <button key={tb} className={tab === tb ? 'active' : ''} data-testid={`tab-${tb}`} onClick={() => setTab(tb)}>
             {s.tabs[tb]}
@@ -152,7 +150,6 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
             ws={ws}
             setWs={setWs}
             s={s}
-            d={d}
             selectedClaimId={selectedClaimId}
             selectedSourceId={selectedSourceId}
             setSelectedSourceId={setSelectedSourceId}
@@ -171,7 +168,7 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
               <ReviewPane key={selectedClaimId ?? 'none'} ws={ws} setWs={setWs} s={s} d={d} states={states} selectedClaimId={selectedClaimId} />
               <details style={{ marginTop: 16 }} className="desktop-history">
                 <summary className="muted">
-                  {s.history} ({ws.history.length})
+                  {s.workspaceHistory} ({ws.history.length})
                 </summary>
                 <HistoryList ws={ws} d={d} s={s} />
               </details>

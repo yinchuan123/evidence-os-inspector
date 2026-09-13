@@ -2,6 +2,7 @@ import { t, type Locale } from './i18n'
 import type { ID, StaleReason, Workspace } from './types'
 import {
   activeBindingsOf,
+  claimDisplayLabel,
   allClaimStates,
   claimsInOrder,
   dependenciesOf,
@@ -74,7 +75,7 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
   const d = t(opts.locale)
   const e = escapeHtml
   const states = allClaimStates(ws)
-  const claimLabel = (id: ID) => ws.claims[id]?.label ?? id
+  const claimLabel = (id: ID) => claimDisplayLabel(ws, id)
   const claimText = (id: ID) => ws.claimVersions[ws.claims[id].headVersionId].text
   const sourceLabel = (id: ID) => ws.sources[id]?.title ?? id
   const verNo = (svId: ID) => ws.sourceVersions[svId]?.versionNo ?? '?'
@@ -170,7 +171,7 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
       idBits.push(href ? `URL: <a href="${e(href)}" rel="noopener noreferrer">${e(s.url)}</a>` : `URL: ${e(s.url)}`)
     }
     if (idBits.length) parts.push(`<div class="meta">${idBits.join(' - ')} (${e(d.identifierUnverified)})</div>`)
-    parts.push(`<table><tr><th>${e(d.version)}</th><th>${e(d.contentHash)}</th><th>${e(d.generatedAt)}</th></tr>`)
+    parts.push(`<table><tr><th>${e(d.version)}</th><th>${e(d.contentHash)}</th><th>${e(d.createdAt)}</th></tr>`)
     for (const v of versions) {
       parts.push(`<tr><td>v${v.versionNo}</td><td><code>${e(v.contentHash)}</code></td><td>${e(v.createdAt)}${v.note ? ` - ${e(v.note)}` : ''}</td></tr>`)
     }
@@ -182,7 +183,7 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
   parts.push(`<p class="meta">${e(d.hashNote)}</p>`)
 
   // History
-  parts.push(`<h2>${e(d.history)} (${ws.history.length})</h2><table><tr><th>#</th><th>${e(d.generatedAt)}</th><th></th></tr>`)
+  parts.push(`<h2>${e(d.history)} (${ws.history.length})</h2><table><tr><th>#</th><th>${e(d.time)}</th><th>${e(d.event_)}</th></tr>`)
   ws.history.forEach((h, i) => {
     const label = d.event[h.type as keyof typeof d.event] ?? h.type
     const detail = describeEvent(h, claimLabel, sourceLabel)

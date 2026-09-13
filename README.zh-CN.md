@@ -6,7 +6,7 @@
 
 [English](README.md) · **[在线演示](https://yinchuan123.github.io/evidence-os-inspector/)** · [版本下载](https://github.com/yinchuan123/evidence-os-inspector/releases) · [常见问题](docs/FAQ.md#中文) · [路线图](ROADMAP.md)
 
-> **状态：v0.1 alpha。** 自动完成的是内容定位、结构检查、依赖追踪、变化提示和报告生成。片段是否真的支持主张，由审阅者判断并记录。见[它不做什么](#它不做什么)。
+> **状态：v0.1 alpha。** 自动完成的是版本追踪、结构检查、依赖追踪、变化提示和报告生成；绑定哪一段原文由你选择。片段是否真的支持主张，由审阅者判断并记录。见[它不做什么](#它不做什么)。
 
 ![录屏：更正来源 A 后，C1 与 C4 被标为需复核，C2、C3、C5 保持已审阅。](docs/media/demo-loop.gif)
 

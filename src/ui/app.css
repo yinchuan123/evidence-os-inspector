@@ -100,11 +100,18 @@ label.field {
 }
 
 .sr-only {
+  /* Anchored at the top-left so hidden inputs can never make the page taller. */
   position: absolute;
+  top: 0;
+  left: 0;
   width: 1px;
   height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* ---------- Top bar ---------- */
@@ -127,6 +134,22 @@ label.field {
 }
 .topbar .title {
   font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.topbar .brand,
+.topbar .badge,
+.topbar button,
+.topbar .check {
+  flex-shrink: 0;
+}
+@media (min-width: 901px) {
+  .workspace .topbar {
+    flex-wrap: nowrap;
+    gap: 10px;
+  }
 }
 
 .badge {

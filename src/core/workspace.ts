@@ -220,6 +220,14 @@ export function relabelClaim(ws: Workspace, args: { claimId: ID; label: string }
   return { ...ws, claims: { ...ws.claims, [claim.id]: updated } }
 }
 
+/** Display label for a claim: its label if set, otherwise its 1-based position in the list. */
+export function claimDisplayLabel(ws: Workspace, id: ID): string {
+  const c = ws.claims[id]
+  if (!c) return id
+  if (c.label) return c.label
+  return String(claimsInOrder(ws).findIndex((x) => x.id === id) + 1)
+}
+
 export function claimsInOrder(ws: Workspace): Claim[] {
   return Object.values(ws.claims).sort((a, b) => a.order - b.order)
 }

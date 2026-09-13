@@ -19,13 +19,14 @@ export function Landing({
   const nav = UI[locale].nav
   const d = t(locale)
   const media = (name: string) => `${import.meta.env.BASE_URL}media/${name}`
+  const faqHref = `${import.meta.env.BASE_URL}docs/FAQ.html${locale === 'zh-CN' ? '#zh' : ''}`
   return (
     <div>
       <header className="topbar">
         <span className="brand">{d.appName}</span>
         <span className="badge">v0.1 alpha</span>
         <span className="spacer" />
-        <a href={`${import.meta.env.BASE_URL}docs/FAQ.html`}>{nav.faq}</a>
+        <a href={faqHref}>{nav.faq}</a>
         <a href={REPO_URL} target="_blank" rel="noopener noreferrer">
           {nav.github}
         </a>
@@ -52,13 +53,11 @@ export function Landing({
         </section>
 
         <section>
-          <img className="shot" src={media('demo-loop.gif')} alt="Screen recording: correcting source A marks claims C1 and C4 as needing re-review while C2, C3 and C5 stay reviewed." width={960} height={600} loading="lazy" />
+          <img className="shot" src={media('demo-loop.gif')} alt={s.gifAlt} width={960} height={600} loading="lazy" />
           <details>
             <summary className="muted">{s.videoSummary}</summary>
             <video key={locale} className="shot" controls preload="none" playsInline poster={media('shot-change-impact.png')} width={1280} height={800}>
               <source src={media(locale === 'zh-CN' ? 'demo-zh.mp4' : 'demo-en.mp4')} type="video/mp4" />
-              <track kind="captions" srcLang="en" label="English" src={media('demo-en.vtt')} />
-              <track kind="captions" srcLang="zh-CN" label="中文" src={media('demo-zh.vtt')} />
             </video>
           </details>
         </section>
@@ -113,7 +112,7 @@ export function Landing({
 
         <footer>
           {s.footer} · <a href={REPO_URL} target="_blank" rel="noopener noreferrer">{nav.github}</a> ·{' '}
-          <a href={`${import.meta.env.BASE_URL}docs/FAQ.html`}>{nav.faq}</a> ·{' '}
+          <a href={faqHref}>{nav.faq}</a> ·{' '}
           <a href={`${REPO_URL}/blob/main/ROADMAP.md`} target="_blank" rel="noopener noreferrer">
             {nav.roadmap}
           </a>

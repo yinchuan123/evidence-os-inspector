@@ -82,7 +82,10 @@ export function ClaimsPane({ ws, setWs, s, d, states, selectedClaimId, setSelect
               data-state={st.kind}
               onClick={() => setSelectedClaimId(c.id)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') setSelectedClaimId(c.id)
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  setSelectedClaimId(c.id)
+                }
               }}
               tabIndex={0}
               role="button"
@@ -206,7 +209,7 @@ function ClaimEditor({ ws, setWs, s, claimId }: { ws: Workspace; setWs: (ws: Wor
               </option>
             ))}
         </select>
-        <select data-testid="dep-status-select" value={depStatus} onChange={(e) => setDepStatus(e.target.value as DependencyStatus)} aria-label="status">
+        <select data-testid="dep-status-select" value={depStatus} onChange={(e) => setDepStatus(e.target.value as DependencyStatus)} aria-label={s.dependencyStatus}>
           <option value="confirmed">{s.depStatus.confirmed}</option>
           <option value="unconfirmed">{s.depStatus.unconfirmed}</option>
         </select>

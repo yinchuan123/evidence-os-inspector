@@ -12,7 +12,7 @@ executable form of these rules.
 | Source version | `sv_N` | none | text, SHA-256 content hash, version number, note |
 | Claim | `clm_N` | label (display only) | order (assigned at creation), creation time |
 | Claim version | `cv_N` | none | text, content hash, version number |
-| Binding | `bnd_N` | none (can be removed) | claim, source **version**, start, end, excerpt |
+| Binding | `bnd_N` | none (the format supports removal; the v0.1 interface has no remove button) | claim, source **version**, start, end, excerpt |
 | Review | `rev_N` | none | claim **version**, label, rationale, reviewer, basis snapshot |
 | Dependency | `dep_N` | status (unconfirmed → confirmed) | claim, depends-on claim |
 | History event | `ev_N` | none | type, time, references |
@@ -37,8 +37,10 @@ Ids are sequential; the numeric suffix also gives creation order. Imported ids a
   equals the slice.
 - Plain text has no pages, so no page numbers are stored or invented.
 - A binding becomes **superseded** once the same claim has a binding to a
-  newer version of the same source. Until then it stays active, and a source
-  revision shows up on the claim as the `source-changed` reason. The review
+  newer version of the same source. Until then it stays active. For a claim that
+  has a review based on the older version, the revision shows up as the
+  `source-changed` reason; an unreviewed claim stays unreviewed, and the review
+  pane marks the binding itself as bound to an older version. The review
   pane can search for the old excerpt in the new version and offer to re-bind
   at the found position; it does so only when the excerpt occurs exactly once,
   and only on your click.
@@ -48,8 +50,8 @@ Ids are sequential; the numeric suffix also gives creation order. Imported ids a
 A review is anchored to the claim version it was made on and snapshots its
 basis:
 
-- `basisSources`: for each source with an active binding, the source version
-  and binding used;
+- `basisSources`: one entry per active binding, with its source and source
+  version;
 - `basisClaims`: for each **confirmed** dependency, the upstream claim version
   and the id of the upstream claim's latest review at that time (or `null`).
 

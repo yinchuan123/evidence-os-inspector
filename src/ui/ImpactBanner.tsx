@@ -1,4 +1,5 @@
 import type { ID, ImpactReport, Workspace } from '../core/types'
+import { claimDisplayLabel } from '../core/workspace'
 import type { UIStrings } from './strings'
 
 export function ImpactBanner({
@@ -12,7 +13,7 @@ export function ImpactBanner({
   s: UIStrings['ws']
   onDismiss: () => void
 }) {
-  const label = (id: ID) => ws.claims[id]?.label ?? id
+  const label = (id: ID) => claimDisplayLabel(ws, id)
   const source = ws.sources[impact.sourceId]
   const from = ws.sourceVersions[impact.fromVersionId]?.versionNo
   const to = ws.sourceVersions[impact.toVersionId]?.versionNo

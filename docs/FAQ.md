@@ -34,8 +34,9 @@ a new review when you have looked again.
 Revising a source creates a new immutable version. The tool lists claims bound
 to that source (direct), claims that depend on them through confirmed links
 (indirect), claims reachable only through unconfirmed links (potential, not
-propagated), and everything else (unaffected). Direct and indirect claims are
-marked "needs re-review".
+propagated), and everything else (unaffected). Direct and indirect claims that
+already have a review are marked "needs re-review"; claims that were never
+reviewed stay "unreviewed".
 
 **How do I continue work later?**
 Export JSON. It contains all versions, bindings, dependencies, reviews and
@@ -86,7 +87,7 @@ recommendation, and no institution or journal endorses it.
 审阅所依据的东西变了：主张文本、绑定的来源版本、新绑定的片段，或它依赖的主张。工具会指出是哪一项；对于依赖关系，会给出路径。它从不改变你的结论；你重新看过之后记录新的审阅。
 
 **来源变化时会发生什么？**
-修订来源会创建一个新的不可变版本。工具列出绑定到该来源的主张（直接）、经已确认关系依赖它们的主张（间接）、只能经未确认关系到达的主张（潜在，不传播），以及其余主张（不受影响）。直接和间接受影响的主张被标为"需复核"。
+修订来源会创建一个新的不可变版本。工具列出绑定到该来源的主张（直接）、经已确认关系依赖它们的主张（间接）、只能经未确认关系到达的主张（潜在，不传播），以及其余主张（不受影响）。直接和间接受影响、且已有审阅的主张被标为"需复核"；从未审阅过的主张保持"未审阅"。
 
 **如何继续之前的工作？**
 导出 JSON。它包含全部版本、绑定、依赖、审阅和历史。在任何机器上导入即可。格式带版本标识；应用拒绝无法理解的文件，而不是猜测。同一浏览器会话内，你自己的工作区（"审阅自己的文字"，包括你导入的文件）会保存在 session storage，误刷新不会丢失。演示工作区每次重新构建，不会覆盖你的工作区；在演示中点"我的工作区"会回到你自己的工作区，不会丢弃任何内容。

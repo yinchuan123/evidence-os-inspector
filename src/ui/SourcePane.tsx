@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Dictionary } from '../core/i18n'
 import { safeHref } from '../core/report'
 import type { ID, ImpactReport, Workspace } from '../core/types'
 import { activeBindingsOf, addBinding, addSource, bindingsOf, computeImpact, renameSource, reviseSource, sourceVersionsOf } from '../core/workspace'
@@ -13,7 +12,6 @@ export interface SourcePaneProps {
   ws: Workspace
   setWs: (ws: Workspace) => void
   s: UIStrings['ws']
-  d: Dictionary
   selectedClaimId: ID | null
   selectedSourceId: ID | null
   setSelectedSourceId: (id: ID | null) => void
@@ -21,7 +19,7 @@ export interface SourcePaneProps {
   onImpact: (impact: ImpactReport) => void
 }
 
-export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId, setSelectedSourceId, demo, onImpact }: SourcePaneProps) {
+export function SourcePane({ ws, setWs, s, selectedClaimId, selectedSourceId, setSelectedSourceId, demo, onImpact }: SourcePaneProps) {
   const [adding, setAdding] = useState(false)
   const [nTitle, setNTitle] = useState('')
   const [nDoi, setNDoi] = useState('')
@@ -277,7 +275,7 @@ export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId,
             </div>
           ) : null}
 
-          <div className="source-text" data-testid="source-text" ref={textRef} lang="en">
+          <div className="source-text" data-testid="source-text" ref={textRef} lang={ws.meta.synthetic ? 'en' : undefined}>
             {renderText()}
           </div>
           <div className="row">
@@ -295,7 +293,11 @@ export function SourcePane({ ws, setWs, s, d, selectedClaimId, selectedSourceId,
           </div>
           {selectedClaimId ? (
             <p className="muted">
-              {d.excerpt}: {activeBindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length} / {bindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length}
+              {s.bindingCounts(
+                activeBindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length,
+                bindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length -
+                  activeBindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length,
+              )}
             </p>
           ) : null}
         </>

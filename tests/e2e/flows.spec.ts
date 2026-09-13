@@ -172,6 +172,6 @@ test.describe('own text, export, import, safety', () => {
     await page.getByTestId('locale-toggle').click()
     await expect(page.getByTestId('synthetic-badge')).toContainText('合成演示')
     await page.getByTestId('claim-item-S2').click()
-    await expect(page.getByTestId('review-state')).toContainText('不支持')
+    await expect(page.getByTestId('review-last-verdict')).toContainText('不支持')
   })
 })

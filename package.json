@@ -14,9 +14,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "verify": "npm run typecheck && npm run lint && npm run test && npm run build:pages && npm run test:e2e",
-    "prebuild": "node scripts/sync-media.mjs",
+    "prebuild": "node scripts/sync-media.mjs && node scripts/build-faq.mjs",
     "media:capture": "node scripts/capture-media.mjs media-raw && node scripts/postprocess-media.mjs media-raw && node scripts/social-card.mjs media-raw",
-    "test:e2e:live": "playwright test -c playwright.live.config.ts"
+    "test:e2e:live": "playwright test -c playwright.live.config.ts",
+    "predev": "node scripts/sync-media.mjs && node scripts/build-faq.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

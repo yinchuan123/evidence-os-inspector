@@ -254,44 +254,54 @@ export function importWorkspace(json: string): ImportResult {
 
   if (v.errors.length) return { ok: false, errors: v.errors }
 
+  // References must resolve to records read from this file, never to inherited
+  // names such as "constructor" or "__proto__".
+  const own = (rec: object, id: string) => Object.hasOwn(rec, id)
+  const get = <T,>(rec: Record<ID, T>, id: string): T | undefined => (Object.hasOwn(rec, id) ? rec[id] : undefined)
+  const seenEventIds = new Set<string>()
+  for (const h of history) {
+    if (seenEventIds.has(h.id)) v.fail(`history: duplicate event id ${h.id}`)
+    seenEventIds.add(h.id)
+  }
+
   // Referential integrity
-  for (const sv of Object.values(sourceVersions)) if (!sources[sv.sourceId]) v.fail(`sourceVersions.${sv.id}: unknown source ${sv.sourceId}`)
+  for (const sv of Object.values(sourceVersions)) if (!own(sources, sv.sourceId)) v.fail(`sourceVersions.${sv.id}: unknown source ${sv.sourceId}`)
   for (const s of Object.values(sources)) {
-    const head = sourceVersions[s.headVersionId]
+    const head = get(sourceVersions, s.headVersionId)
     if (!head || head.sourceId !== s.id) v.fail(`sources.${s.id}: head version ${s.headVersionId} missing or belongs to another source`)
   }
-  for (const cv of Object.values(claimVersions)) if (!claims[cv.claimId]) v.fail(`claimVersions.${cv.id}: unknown claim ${cv.claimId}`)
+  for (const cv of Object.values(claimVersions)) if (!own(claims, cv.claimId)) v.fail(`claimVersions.${cv.id}: unknown claim ${cv.claimId}`)
   for (const c of Object.values(claims)) {
-    const head = claimVersions[c.headVersionId]
+    const head = get(claimVersions, c.headVersionId)
     if (!head || head.claimId !== c.id) v.fail(`claims.${c.id}: head version ${c.headVersionId} missing or belongs to another claim`)
   }
   for (const b of Object.values(bindings)) {
-    if (!claims[b.claimId]) v.fail(`bindings.${b.id}: unknown claim ${b.claimId}`)
-    const sv = sourceVersions[b.sourceVersionId]
+    if (!own(claims, b.claimId)) v.fail(`bindings.${b.id}: unknown claim ${b.claimId}`)
+    const sv = get(sourceVersions, b.sourceVersionId)
     if (!sv || sv.sourceId !== b.sourceId) v.fail(`bindings.${b.id}: source version ${b.sourceVersionId} missing or not of source ${b.sourceId}`)
     else if (b.start < 0 || b.end > sv.text.length || b.start >= b.end) v.fail(`bindings.${b.id}: span out of range`)
     else if (sv.text.slice(b.start, b.end) !== b.excerpt) v.fail(`bindings.${b.id}: excerpt does not match the span`)
   }
   for (const r of Object.values(reviews)) {
-    if (!claims[r.claimId]) v.fail(`reviews.${r.id}: unknown claim ${r.claimId}`)
-    const cv = claimVersions[r.claimVersionId]
+    if (!own(claims, r.claimId)) v.fail(`reviews.${r.id}: unknown claim ${r.claimId}`)
+    const cv = get(claimVersions, r.claimVersionId)
     if (!cv || cv.claimId !== r.claimId) v.fail(`reviews.${r.id}: claim version ${r.claimVersionId} missing or of another claim`)
     for (const b of r.basisSources) {
-      if (!sources[b.sourceId]) v.fail(`reviews.${r.id}: unknown source ${b.sourceId}`)
-      if (!sourceVersions[b.sourceVersionId]) v.fail(`reviews.${r.id}: unknown source version ${b.sourceVersionId}`)
-      if (!bindings[b.bindingId]) v.warnings.push(`reviews.${r.id}: basis binding ${b.bindingId} no longer exists`)
+      if (!own(sources, b.sourceId)) v.fail(`reviews.${r.id}: unknown source ${b.sourceId}`)
+      if (!own(sourceVersions, b.sourceVersionId)) v.fail(`reviews.${r.id}: unknown source version ${b.sourceVersionId}`)
+      if (!own(bindings, b.bindingId)) v.warnings.push(`reviews.${r.id}: basis binding ${b.bindingId} no longer exists`)
     }
     for (const b of r.basisClaims) {
-      if (!claims[b.claimId]) v.fail(`reviews.${r.id}: unknown upstream claim ${b.claimId}`)
-      if (!claimVersions[b.claimVersionId]) v.fail(`reviews.${r.id}: unknown upstream claim version ${b.claimVersionId}`)
-      if (b.reviewId !== null && !reviews[b.reviewId]) v.fail(`reviews.${r.id}: unknown upstream review ${b.reviewId}`)
-      if (!dependencies[b.dependencyId]) v.warnings.push(`reviews.${r.id}: basis dependency ${b.dependencyId} no longer exists`)
+      if (!own(claims, b.claimId)) v.fail(`reviews.${r.id}: unknown upstream claim ${b.claimId}`)
+      if (!own(claimVersions, b.claimVersionId)) v.fail(`reviews.${r.id}: unknown upstream claim version ${b.claimVersionId}`)
+      if (b.reviewId !== null && !own(reviews, b.reviewId)) v.fail(`reviews.${r.id}: unknown upstream review ${b.reviewId}`)
+      if (!own(dependencies, b.dependencyId)) v.warnings.push(`reviews.${r.id}: basis dependency ${b.dependencyId} no longer exists`)
     }
   }
   const seenEdges = new Set<string>()
   for (const d of Object.values(dependencies)) {
-    if (!claims[d.claimId]) v.fail(`dependencies.${d.id}: unknown claim ${d.claimId}`)
-    if (!claims[d.dependsOnClaimId]) v.fail(`dependencies.${d.id}: unknown claim ${d.dependsOnClaimId}`)
+    if (!own(claims, d.claimId)) v.fail(`dependencies.${d.id}: unknown claim ${d.claimId}`)
+    if (!own(claims, d.dependsOnClaimId)) v.fail(`dependencies.${d.id}: unknown claim ${d.dependsOnClaimId}`)
     if (d.claimId === d.dependsOnClaimId) v.fail(`dependencies.${d.id}: self-dependency`)
     const key = `${d.claimId}->${d.dependsOnClaimId}`
     if (seenEdges.has(key)) v.fail(`dependencies.${d.id}: duplicate edge ${key}`)

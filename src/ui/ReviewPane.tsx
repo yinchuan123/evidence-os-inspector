@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import type { Dictionary } from '../core/i18n'
 import type { ID, ReviewLabel, ReviewState, StaleReason, Workspace } from '../core/types'
-import { activeBindingsOf, addBinding, addReview, claimVersionsOf, locateExcerpt, reviewsOf, supersededBindingsOf } from '../core/workspace'
+import { activeBindingsOf, addBinding, addReview, claimVersionsOf, dependenciesOf, locateExcerpt, reviewsOf, supersededBindingsOf } from '../core/workspace'
 import { claimDisplayLabel } from './labels'
 import type { UIStrings } from './strings'
+import { formatLocalTime } from './time'
 
 const LABELS: Exclude<ReviewLabel, 'unreviewed'>[] = ['supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine']
 
@@ -17,7 +18,8 @@ export interface ReviewPaneProps {
 }
 
 export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewPaneProps) {
-  const [label, setLabel] = useState<Exclude<ReviewLabel, 'unreviewed'>>('supported-in-scope')
+  // No label is pre-selected: every review is an explicit choice.
+  const [label, setLabel] = useState<Exclude<ReviewLabel, 'unreviewed'> | null>(null)
   const [rationale, setRationale] = useState('')
   const [reviewer, setReviewer] = useState('')
   const [msg, setMsg] = useState('')
@@ -57,6 +59,10 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
   }
 
   const submit = () => {
+    if (!label) {
+      setMsg(s.labelRequired)
+      return
+    }
     if (!rationale.trim()) {
       setMsg(s.rationaleRequired)
       return
@@ -64,6 +70,7 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
     const r = addReview(ws, { claimId: claim.id, label, rationale: rationale.trim(), reviewer: reviewer.trim() || undefined })
     setWs(r.ws)
     setRationale('')
+    setLabel(null)
     setMsg('')
   }
 
@@ -99,9 +106,13 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
         <span className="muted">v{head.versionNo}</span>
         <span className={`state wrap ${st.kind}`} data-testid="review-state">
           {d.state[st.kind]}
-          {st.kind !== 'unreviewed' ? ` · ${d.label[st.label]}` : ''}
         </span>
       </div>
+      {st.kind !== 'unreviewed' ? (
+        <div className="muted" data-testid="review-last-verdict">
+          {s.lastVerdict}: <strong>{d.label[st.label]}</strong>
+        </div>
+      ) : null}
       <p>{head.text}</p>
       {st.kind === 'needs-re-review' ? (
         <div className="notice" data-testid="review-reasons">
@@ -116,7 +127,9 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
       <p className="muted">{s.stateNote}</p>
 
       <h3>{s.boundPassages}</h3>
-      {active.length === 0 ? <p className="muted">{s.noBindingsYet}</p> : null}
+      {active.length === 0 ? (
+        <p className="muted">{dependenciesOf(ws, claim.id).some((x) => x.status === 'confirmed') ? s.noBindingsDependent : s.noBindingsYet}</p>
+      ) : null}
       {active.map((b) => {
         const src = ws.sources[b.sourceId]
         const stale = src.headVersionId !== b.sourceVersionId
@@ -166,9 +179,7 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
         </>
       ) : null}
 
-      <h3>
-        {s.recordReview} v{head.versionNo}
-      </h3>
+      <h3>{s.recordReview(head.versionNo)}</h3>
       <fieldset className="labels">
         <legend className="sr-only">{s.review}</legend>
         {LABELS.map((l) => (
@@ -185,7 +196,11 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
         <button className="primary" data-testid="review-submit" onClick={submit}>
           {s.submitReview}
         </button>
-        {msg ? <span className="error">{msg}</span> : null}
+        {msg ? (
+          <span className="error" data-testid="review-error">
+            {msg}
+          </span>
+        ) : null}
       </div>
 
       <h3>{s.reviewHistory}</h3>
@@ -202,7 +217,7 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
                 </strong>
                 <span className="muted">v{cvNo(r.claimVersionId)}</span>
                 <span className="badge">{d.label[r.label]}</span>
-                <span className="muted">{r.createdAt.replace('T', ' ').slice(0, 19)}</span>
+                <span className="muted">{formatLocalTime(r.createdAt)}</span>
               </div>
               <div>{r.rationale}</div>
               {r.reviewer ? <div className="muted">— {r.reviewer}</div> : null}

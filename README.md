@@ -8,8 +8,9 @@ account, no upload, no API key.
 
 [中文说明](README.zh-CN.md) · **[Live demo](https://yinchuan123.github.io/evidence-os-inspector/)** · [Releases](https://github.com/yinchuan123/evidence-os-inspector/releases) · [FAQ](docs/FAQ.md) · [Roadmap](ROADMAP.md)
 
-> **Status: v0.1 alpha.** Content location, structural checks, dependency
-> tracking, change flags and report generation are automatic. Whether a passage
+> **Status: v0.1 alpha.** Version tracking, structural checks, dependency
+> tracking, change flags and report generation are automatic; you choose the
+> passages to bind. Whether a passage
 > actually supports a claim is a judgement a person records. See
 > [What it does not do](#what-it-does-not-do).
 
@@ -27,7 +28,8 @@ account, no upload, no API key.
 Then click **Review your text**, paste a paragraph of your own, split it into
 claims, add the source text you are checking against, and do the same.
 
-All demo studies are invented. They show the mechanics, not real evidence.
+All demo studies are invented. They show the mechanics, not real evidence. The
+demo texts are in English; the interface is also available in Chinese.
 
 ## Screenshots
 

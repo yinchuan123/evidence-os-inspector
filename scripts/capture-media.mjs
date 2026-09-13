@@ -4,10 +4,9 @@
  * http://localhost:4173/evidence-os-inspector/ (npm run build:pages && npm run preview:pages).
  *
  * Output: media-raw/ (gitignored). Copy the reviewed files to docs/media and public/media.
- * Requires ffmpeg on PATH for mp4/gif conversion.
+ * Then run postprocess-media.mjs (captions, mp4, GIF; needs ffmpeg) and social-card.mjs.
  */
 import { chromium } from '@playwright/test'
-import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
@@ -215,21 +214,8 @@ writeFileSync(`${out}/demo-zh.srt`, srt('zh'))
 
 await browser.close()
 
-// ---------------------------------------------------------------------------
-// 4. ffmpeg: mp4 with burned-in subtitles (en, zh), plain mp4, gif loop
-// ---------------------------------------------------------------------------
-function ff(args) {
-  execFileSync('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', ...args], { stdio: 'inherit' })
-}
-const raw = `${out}/demo-raw.webm`
-if (existsSync(raw)) {
-  ff(['-i', raw, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '23', '-movflags', '+faststart', `${out}/demo.mp4`])
-  const sub = (srtFile, extra) => `subtitles=${srtFile}:force_style='FontSize=22,Outline=1,Shadow=0,MarginV=30,PrimaryColour=&H00FFFFFF,BackColour=&H80000000,BorderStyle=4${extra}'`
-  ff(['-i', raw, '-vf', sub(`${out}/demo-en.srt`, ''), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '23', '-movflags', '+faststart', `${out}/demo-en.mp4`])
-  ff(['-i', raw, '-vf', sub(`${out}/demo-zh.srt`, ',FontName=PingFang SC'), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '23', '-movflags', '+faststart', `${out}/demo-zh.mp4`])
-  // GIF loop: the revision-to-impact segment, 8 fps, 960px wide, reduced palette.
-  ff(['-ss', '11', '-t', '17', '-i', raw, '-vf', 'fps=8,scale=960:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=96:stats_mode=diff[p];[s1][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle', '-loop', '0', `${out}/demo-loop.gif`])
-}
+// 4. Video post-processing (captions, mp4, GIF) is done by postprocess-media.mjs,
+//    which does not depend on ffmpeg being built with libass.
 
 for (const f of ['shot-landing.png', 'shot-source-comparison.png', 'shot-change-impact.png', 'shot-report.png', 'social-card.png', 'demo-raw.webm', 'demo.mp4', 'demo-en.mp4', 'demo-zh.mp4', 'demo-loop.gif']) {
   const p = `${out}/${f}`

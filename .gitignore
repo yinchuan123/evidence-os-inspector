@@ -34,3 +34,5 @@ blob-report
 
 # generated from docs/media at build time
 public/media
+# generated from docs/FAQ.md at build time
+public/docs/FAQ.html
