@@ -19,7 +19,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run build:pages && npm run preview:pages',
     url: `http://localhost:4173${BASE}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false, // always rebuild; a stale server on 4173 must fail loudly
     timeout: 180_000,
   },
   projects: [

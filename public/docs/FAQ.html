@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src 'self';">
+<title>FAQ - Evidence OS Inspector</title>
+<style>
+:root{color-scheme:light}
+body{margin:0 auto;max-width:820px;padding:24px 20px 60px;font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;color:#1b1b1b;background:#fafaf8}
+h1{font-size:26px;margin:0 0 4px}h2{font-size:20px;margin:36px 0 8px;border-bottom:1px solid #dcdcd6;padding-bottom:4px}
+h3{font-size:16px;margin:20px 0 4px}p{margin:0 0 10px}a{color:#1f5f8b}code{font-family:ui-monospace,Menlo,monospace;font-size:13px}
+.nav{font-size:14px;color:#5c5c5c;margin-bottom:20px}
+</style>
+</head>
+<body>
+<h1>FAQ</h1>
+<div class="nav"><a href="../">Back to Evidence OS Inspector</a> · <a href="#zh">中文</a> · <a href="https://github.com/yinchuan123/evidence-os-inspector" rel="noopener noreferrer">GitHub</a></div>
+
+<h3>Is there any AI in it?</h3>
+<p>No. Version 0.1 contains no language model and calls no AI service. Sentence splitting is a plain heuristic. Every review label is entered by a person. A future adapter may let an AI assistant <em>propose</em> bindings or rationales for a person to confirm; proposals would be clearly marked as unreviewed.</p>
+
+<h3>Does it upload my text?</h3>
+<p>No. The app runs in your browser tab. The production build ships a Content-Security-Policy with <code>connect-src 'none'</code>, so the page cannot make network requests after it loads. Exporting creates a file on your computer. The hosting page (GitHub Pages) keeps ordinary web-server access logs like any static site; that is the host's log, not your text.</p>
+
+<h3>Does it decide whether a claim is true or supported?</h3>
+<p>No. It records <em>your</em> judgement (supported within stated scope, partially supported, not supported, cannot determine) together with the exact source version and passage you looked at. Finding a passage is not the same as the passage supporting the claim, and a missing source is not the same as the claim being wrong.</p>
+
+<h3>What does "needs re-review" mean?</h3>
+<p>Something the review was based on has changed: the claim text, a bound source version, a newly bound passage, or a claim it depends on. The tool shows which one and, for dependencies, the path. It never changes your verdict; you record a new review when you have looked again.</p>
+
+<h3>What happens when a source changes?</h3>
+<p>Revising a source creates a new immutable version. The tool lists claims bound to that source (direct), claims that depend on them through confirmed links (indirect), claims reachable only through unconfirmed links (potential, not propagated), and everything else (unaffected). Direct and indirect claims are marked "needs re-review".</p>
+
+<h3>How do I continue work later?</h3>
+<p>Export JSON. It contains all versions, bindings, dependencies, reviews and history. Import it into the app on any machine. The format has a version identifier; the app refuses files it does not understand rather than guessing. Within one browser session the current workspace is also kept in session storage so an accidental refresh does not lose it.</p>
+
+<h3>Can I share results with a co-author?</h3>
+<p>Export an HTML report. It is a single self-contained file with claims, bound passages, states, reasons and history. Full source text is not included unless you choose to include it.</p>
+
+<h3>What does the content hash prove?</h3>
+<p>Only that the recorded text is identical or not. It does not establish authorship, publication status, or scientific truth.</p>
+
+<h3>Which inputs work?</h3>
+<p>Pasted text, <code>.txt</code>, <code>.md</code>, and this tool's JSON. No PDF or OCR in v0.1.</p>
+
+<h3>How do I contribute?</h3>
+<p>Report what you tried and where it broke or fell short, on GitHub issues. Code contributions are welcome after an issue discussion.</p>
+
+<h3>Is this a medical or clinical product?</h3>
+<p>No. It is a general writing-and-review aid. Nothing in it is a clinical recommendation, and no institution or journal endorses it.</p>
+
+<h2 id="zh">中文</h2>
+
+<h3>里面有 AI 吗？</h3>
+<p>没有。v0.1 不包含语言模型，也不调用任何 AI 服务。句子切分只是简单规则。所有审阅标签都由人填写。未来的适配器可能让 AI 助手<em>提议</em>绑定或理由，由人确认；提议会被清楚标为未审阅。</p>
+
+<h3>会上传我的文字吗？</h3>
+<p>不会。应用在你的浏览器标签页内运行。生产构建的 Content-Security-Policy 含 <code>connect-src 'none'</code>，页面加载后无法发起网络请求。导出只在你的电脑上生成文件。托管页面（GitHub Pages）像任何静态站点一样有普通的 Web 访问日志，那是托管方的日志，不是你的文字。</p>
+
+<h3>它会判断主张是否真实或被支持吗？</h3>
+<p>不会。它记录<em>你</em>的判断（所述范围内支持、部分支持、不支持、无法判断），连同你当时查看的来源版本和片段。定位到片段不等于片段支持主张；来源缺失也不等于主张错误。</p>
+
+<h3>"需复核"是什么意思？</h3>
+<p>审阅所依据的东西变了：主张文本、绑定的来源版本、新绑定的片段，或它依赖的主张。工具会指出是哪一项；对于依赖关系，会给出路径。它从不改变你的结论；你重新看过之后记录新的审阅。</p>
+
+<h3>来源变化时会发生什么？</h3>
+<p>修订来源会创建一个新的不可变版本。工具列出绑定到该来源的主张（直接）、经已确认关系依赖它们的主张（间接）、只能经未确认关系到达的主张（潜在，不传播），以及其余主张（不受影响）。直接和间接受影响的主张被标为"需复核"。</p>
+
+<h3>如何继续之前的工作？</h3>
+<p>导出 JSON。它包含全部版本、绑定、依赖、审阅和历史。在任何机器上导入即可。格式带版本标识；应用拒绝无法理解的文件，而不是猜测。同一浏览器会话内当前工作区也会保存在 session storage，误刷新不会丢失。</p>
+
+<h3>能和合作者分享结果吗？</h3>
+<p>导出 HTML 报告。它是一个独立文件，包含主张、绑定片段、状态、原因和历史。默认不含来源全文，除非你选择包含。</p>
+
+<h3>内容哈希证明什么？</h3>
+<p>只证明记录的文本是否完全相同。它不证明作者身份、发表状态或科学真实性。</p>
+
+<h3>支持哪些输入？</h3>
+<p>粘贴文本、<code>.txt</code>、<code>.md</code>，以及本工具的 JSON。v0.1 没有 PDF 或 OCR。</p>
+
+<h3>怎样参与？</h3>
+<p>在 GitHub issues 报告你试了什么、在哪里出了问题或不够用。代码贡献欢迎先在 issue 中讨论。</p>
+
+<h3>这是医疗或临床产品吗？</h3>
+<p>不是。它是通用的写作与审阅辅助工具。其中没有任何临床建议，也没有机构或期刊背书。</p>
+</body>
+</html>

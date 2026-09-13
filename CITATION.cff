@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+type: software
+title: "Evidence OS Inspector"
+abstract: "A browser-based workspace for tracing research claims to source passages, recording human reviews against specific versions, and seeing which claims need re-review when a source changes."
+authors:
+  - family-names: Yin
+    given-names: Chuan
+    orcid: "https://orcid.org/0009-0005-2830-8167"
+version: 0.1.0-alpha.1
+date-released: 2026-09-13
+license: MIT
+repository-code: "https://github.com/yinchuan123/evidence-os-inspector"
+url: "https://yinchuan123.github.io/evidence-os-inspector/"
+keywords:
+  - research-tools
+  - provenance
+  - reproducible-research
+  - evidence-synthesis
+  - open-science
