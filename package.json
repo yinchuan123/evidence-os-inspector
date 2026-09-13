@@ -1,13 +1,19 @@
 {
   "name": "evidence-os-inspector",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0-alpha.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:pages": "VITE_BASE=/evidence-os-inspector/ npm run build",
+    "preview": "vite preview",
+    "preview:pages": "VITE_BASE=/evidence-os-inspector/ vite preview --port 4173 --strictPort",
+    "typecheck": "tsc -b",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run build:pages && npm run test:e2e"
   },
   "dependencies": {
     "react": "^19.2.8",
@@ -23,5 +29,15 @@
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "vitest": "^5.0.0"
+  },
+  "description": "A browser-based workspace for tracing research claims to source passages and reviewing the impact of source changes.",
+  "license": "MIT",
+  "homepage": "https://yinchuan123.github.io/evidence-os-inspector/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yinchuan123/evidence-os-inspector.git"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
