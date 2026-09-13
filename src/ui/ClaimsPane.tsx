@@ -45,14 +45,14 @@ export function ClaimsPane({ ws, setWs, s, d, states, selectedClaimId, setSelect
     const parts = splitSentences(draft)
     if (parts.length === 0) return
     let next = ws
-    let last: ID | null = null
+    let first: ID | null = null
     for (const p of parts) {
       const r = addClaim(next, { text: p.text })
       next = r.ws
-      last = r.claimId
+      first ??= r.claimId
     }
     setWs(next)
-    setSelectedClaimId(last)
+    setSelectedClaimId(first)
     setDraft('')
   }
   const importText = async (file: File | undefined) => {

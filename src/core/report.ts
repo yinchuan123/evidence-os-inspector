@@ -3,6 +3,7 @@ import type { ID, StaleReason, Workspace } from './types'
 import {
   activeBindingsOf,
   claimDisplayLabel,
+  supersededBindingsOf,
   allClaimStates,
   claimsInOrder,
   dependenciesOf,
@@ -66,7 +67,7 @@ blockquote{margin:6px 0;padding:6px 10px;border-left:3px solid #aaa;background:#
 .meta{color:#555;font-size:12px}
 ul{margin:4px 0;padding-left:20px}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;word-break:break-all}
-table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:4px 6px;text-align:left;vertical-align:top;font-size:13px}
+.table-wrap{overflow-x:auto;max-width:100%}table{border-collapse:collapse;width:100%}td{overflow-wrap:anywhere}blockquote.old{border-left-color:#ccc;color:#555}td,th{border:1px solid #ddd;padding:4px 6px;text-align:left;vertical-align:top;font-size:13px}
 .notice{border:1px solid #c99400;background:#fff4d6;padding:8px 12px;border-radius:6px;margin:8px 0}
 footer{margin-top:32px;color:#666;font-size:12px;border-top:1px solid #ddd;padding-top:8px}
 `
@@ -126,6 +127,14 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
       parts.push(`<div class="meta">${e(d.excerpt)}: ${e(sourceLabel(b.sourceId))} v${verNo(b.sourceVersionId)}, ${e(d.position)} ${b.start}-${b.end}</div>`)
       parts.push(`<blockquote>${e(b.excerpt)}</blockquote>`)
     }
+    const older = supersededBindingsOf(ws, c.id)
+    if (older.length) {
+      parts.push(`<div class="meta"><strong>${e(d.earlierPassages)}</strong></div>`)
+      for (const b of older) {
+        parts.push(`<div class="meta">${e(sourceLabel(b.sourceId))} v${verNo(b.sourceVersionId)}, ${e(d.position)} ${b.start}-${b.end}</div>`)
+        parts.push(`<blockquote class="old">${e(b.excerpt)}</blockquote>`)
+      }
+    }
     const deps = dependenciesOf(ws, c.id)
     if (deps.length) {
       parts.push(
@@ -138,7 +147,7 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
     if (reviews.length) {
       const latestId = latestReview(ws, c.id)?.id
       parts.push(
-        `<h3>${e(d.reviews)}</h3><table><tr><th>#</th><th>${e(d.claim)} ${e(d.version)}</th><th>${e(d.review)}</th><th>${e(d.rationale)}</th><th>${e(d.basedOn)}</th><th>${e(d.reviewer)}</th></tr>`,
+        `<h3>${e(d.reviews)}</h3><div class="table-wrap"><table><tr><th>#</th><th>${e(d.claim)} ${e(d.version)}</th><th>${e(d.review)}</th><th>${e(d.rationale)}</th><th>${e(d.basedOn)}</th><th>${e(d.reviewer)}</th></tr>`,
       )
       reviews.forEach((r, i) => {
         const basis = [
@@ -149,7 +158,7 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
           `<tr><td>${i + 1}${r.id === latestId ? ' *' : ''}</td><td>v${cverNo(r.claimVersionId)}</td><td>${e(d.label[r.label])}</td><td>${e(r.rationale)}</td><td>${basis || '-'}</td><td>${e(r.reviewer ?? '-')}</td></tr>`,
         )
       })
-      parts.push(`</table><div class="meta">* = ${e(opts.locale === 'zh-CN' ? '当前有效审阅' : 'latest review')}</div>`)
+      parts.push(`</table></div><div class="meta">* = ${e(d.latestReview)}</div>`)
     }
     parts.push(`</div>`)
   }
@@ -171,11 +180,11 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
       idBits.push(href ? `URL: <a href="${e(href)}" rel="noopener noreferrer">${e(s.url)}</a>` : `URL: ${e(s.url)}`)
     }
     if (idBits.length) parts.push(`<div class="meta">${idBits.join(' - ')} (${e(d.identifierUnverified)})</div>`)
-    parts.push(`<table><tr><th>${e(d.version)}</th><th>${e(d.contentHash)}</th><th>${e(d.createdAt)}</th></tr>`)
+    parts.push(`<div class="table-wrap"><table><tr><th>${e(d.version)}</th><th>${e(d.contentHash)}</th><th>${e(d.createdAt)} (UTC)</th></tr>`)
     for (const v of versions) {
       parts.push(`<tr><td>v${v.versionNo}</td><td><code>${e(v.contentHash)}</code></td><td>${e(v.createdAt)}${v.note ? ` - ${e(v.note)}` : ''}</td></tr>`)
     }
-    parts.push(`</table>`)
+    parts.push(`</table></div>`)
     if (opts.includeSourceText) parts.push(`<h3>${e(d.sourceText)} (v${head.versionNo})</h3><blockquote>${e(head.text)}</blockquote>`)
     else parts.push(`<div class="meta">${e(d.sourceTextOmitted)}</div>`)
     parts.push(`</div>`)
@@ -183,13 +192,13 @@ export function renderReport(ws: Workspace, opts: ReportOptions): string {
   parts.push(`<p class="meta">${e(d.hashNote)}</p>`)
 
   // History
-  parts.push(`<h2>${e(d.history)} (${ws.history.length})</h2><table><tr><th>#</th><th>${e(d.time)}</th><th>${e(d.event_)}</th></tr>`)
+  parts.push(`<h2>${e(d.history)} (${ws.history.length})</h2><div class="table-wrap"><table><tr><th>#</th><th>${e(d.time)} (UTC)</th><th>${e(d.event_)}</th></tr>`)
   ws.history.forEach((h, i) => {
     const label = d.event[h.type as keyof typeof d.event] ?? h.type
     const detail = describeEvent(h, claimLabel, sourceLabel)
     parts.push(`<tr><td>${i + 1}</td><td>${e(h.at)}</td><td>${e(label)}${detail ? ` - ${e(detail)}` : ''}</td></tr>`)
   })
-  parts.push(`</table>`)
+  parts.push(`</table></div>`)
   parts.push(`<footer>${e(d.reportFooter)}</footer>`)
 
   return `<!doctype html>

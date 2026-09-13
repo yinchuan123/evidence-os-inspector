@@ -19,14 +19,15 @@ account, no upload, no API key.
 ## Try it in two minutes
 
 1. Open the [live demo](https://yinchuan123.github.io/evidence-os-inspector/) and click **Try demo**.
-2. Select claim **C1**. The passage it is bound to is highlighted in source A.
+2. Select claim **C1**. The passage it is bound to is highlighted in source A (on a phone, open the *Sources* tab to see it).
 3. In *Sources*, pick "Synthetic cohort report A", click **Revise source**, then **Load suggested correction**, and save.
 4. Read the impact banner: **C1** is affected directly, **C4** through a confirmed dependency, and C2, C3, C5 are not affected.
-5. Select C1, bind a passage from version 2, record a new review. The old review stays in history.
+5. Select C1. In *Sources*, select the corrected sentence in version 2 with the mouse and click **Bind selection to C1**. Then choose a label, write a rationale and click **Record review**. The old review stays in history.
 6. **Export HTML report** to get a standalone file you can send to a co-author.
 
-Then click **Review your text**, paste a paragraph of your own, split it into
-claims, add the source text you are checking against, and do the same.
+Then click the app name at the top left to return to the start page, click
+**Review your text**, paste a paragraph of your own, split it into claims, add
+the source text you are checking against, and do the same.
 
 All demo studies are invented. They show the mechanics, not real evidence. The
 demo texts are in English; the interface is also available in Chinese.

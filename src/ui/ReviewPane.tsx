@@ -5,6 +5,7 @@ import { activeBindingsOf, addBinding, addReview, claimVersionsOf, dependenciesO
 import { claimDisplayLabel } from './labels'
 import type { UIStrings } from './strings'
 import { formatLocalTime } from './time'
+import { EMPTY_DRAFT, type ReviewDraft } from './drafts'
 
 const LABELS: Exclude<ReviewLabel, 'unreviewed'>[] = ['supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine']
 
@@ -15,14 +16,17 @@ export interface ReviewPaneProps {
   d: Dictionary
   states: Map<ID, ReviewState>
   selectedClaimId: ID | null
+  draft: ReviewDraft
+  setDraft: (claimId: ID, draft: ReviewDraft) => void
 }
 
-export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewPaneProps) {
+
+export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId, draft, setDraft }: ReviewPaneProps) {
   // No label is pre-selected: every review is an explicit choice.
-  const [label, setLabel] = useState<Exclude<ReviewLabel, 'unreviewed'> | null>(null)
-  const [rationale, setRationale] = useState('')
-  const [reviewer, setReviewer] = useState('')
+  const { label, rationale, reviewer } = draft
+  const update = (patch: Partial<ReviewDraft>) => selectedClaimId && setDraft(selectedClaimId, { ...draft, ...patch })
   const [msg, setMsg] = useState('')
+  const [recorded, setRecorded] = useState(false)
   const [rebind, setRebind] = useState<Record<ID, { start: number; end: number } | 'not-found'>>({})
 
   if (!selectedClaimId || !ws.claims[selectedClaimId]) {
@@ -69,9 +73,9 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
     }
     const r = addReview(ws, { claimId: claim.id, label, rationale: rationale.trim(), reviewer: reviewer.trim() || undefined })
     setWs(r.ws)
-    setRationale('')
-    setLabel(null)
+    setDraft(claim.id, { ...EMPTY_DRAFT, reviewer })
     setMsg('')
+    setRecorded(true)
   }
 
   const active = activeBindingsOf(ws, claim.id)
@@ -159,7 +163,7 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
                   </button>
                 ) : null}
                 {rb === 'not-found' ? (
-                  <span className="muted" data-testid="rebind-not-found">
+                  <span className="muted hint" data-testid="rebind-not-found">
                     {s.notFound}
                   </span>
                 ) : null}
@@ -180,18 +184,23 @@ export function ReviewPane({ ws, setWs, s, d, states, selectedClaimId }: ReviewP
       ) : null}
 
       <h3>{s.recordReview(head.versionNo)}</h3>
+      {recorded ? (
+        <div className="notice ok" data-testid="review-recorded" role="status">
+          {s.reviewRecorded(clabel(claim.id))}
+        </div>
+      ) : null}
       <fieldset className="labels">
         <legend className="sr-only">{s.review}</legend>
         {LABELS.map((l) => (
           <label key={l}>
-            <input type="radio" name="review-label" data-testid={`review-label-${l}`} checked={label === l} onChange={() => setLabel(l)} /> {d.label[l]}
+            <input type="radio" name="review-label" data-testid={`review-label-${l}`} checked={label === l} onChange={() => { update({ label: l }); setRecorded(false) }} /> {d.label[l]}
           </label>
         ))}
       </fieldset>
       <label className="field">{s.rationale}</label>
-      <textarea data-testid="review-rationale" aria-label={s.rationale} value={rationale} onChange={(e) => setRationale(e.target.value)} placeholder={s.rationalePlaceholder} />
+      <textarea data-testid="review-rationale" aria-label={s.rationale} value={rationale} onChange={(e) => { update({ rationale: e.target.value }); setRecorded(false) }} placeholder={s.rationalePlaceholder} />
       <label className="field">{s.reviewer}</label>
-      <input type="text" aria-label={s.reviewer} value={reviewer} onChange={(e) => setReviewer(e.target.value)} />
+      <input type="text" aria-label={s.reviewer} value={reviewer} onChange={(e) => update({ reviewer: e.target.value })} />
       <div className="row">
         <button className="primary" data-testid="review-submit" onClick={submit}>
           {s.submitReview}

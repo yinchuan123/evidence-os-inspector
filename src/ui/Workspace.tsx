@@ -9,6 +9,7 @@ import { ClaimsPane } from './ClaimsPane'
 import { downloadText, readFileAsText, safeFilename } from './download'
 import { HistoryList } from './HistoryList'
 import { ImpactBanner } from './ImpactBanner'
+import { EMPTY_DRAFT, type ReviewDraft } from './drafts'
 import { ReviewPane } from './ReviewPane'
 import { SourcePane } from './SourcePane'
 import { UI } from './strings'
@@ -23,11 +24,14 @@ export interface WorkspaceViewProps {
   demoId: DemoId | null
   onHome: () => void
   onWorkspaceButton: () => void
-  onImported: (ws: WS) => void
+  onImported: (ws: WS) => boolean
+  persistFailed: boolean
+  restoreProblem: boolean
+  onDismissRestoreProblem: () => void
   onToggleLocale: () => void
 }
 
-export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorkspaceButton, onImported, onToggleLocale }: WorkspaceViewProps) {
+export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorkspaceButton, onImported, persistFailed, restoreProblem, onDismissRestoreProblem, onToggleLocale }: WorkspaceViewProps) {
   const s = UI[locale].ws
   const nav = UI[locale].nav
   const d = t(locale)
@@ -37,6 +41,8 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
   const [tab, setTab] = useState<Tab>('claims')
   const [importError, setImportError] = useState<string[] | null>(null)
   const [includeSourceText, setIncludeSourceText] = useState(false)
+  const [drafts, setDrafts] = useState<Record<ID, ReviewDraft>>({})
+  const setDraft = (claimId: ID, draft: ReviewDraft) => setDrafts((m) => ({ ...m, [claimId]: draft }))
   const importRef = useRef<HTMLInputElement>(null)
 
   const states = useMemo(() => allClaimStates(ws), [ws])
@@ -54,7 +60,8 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
         return
       }
       setImportError(null)
-      onImported(res.ws)
+      if (!onImported(res.ws)) return
+      setDrafts({})
       setSelectedClaimId(null)
       setSelectedSourceId(null)
       setImpact(null)
@@ -120,6 +127,23 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
         </div>
       ) : null}
 
+      {persistFailed ? (
+        <div className="error banner" data-testid="persist-warning" role="alert">
+          {s.persistFailed}{' '}
+          <button className="small" onClick={exportJson}>
+            {s.exportJson}
+          </button>
+        </div>
+      ) : null}
+      {restoreProblem ? (
+        <div className="notice banner" data-testid="restore-warning" role="alert">
+          {s.restoreProblem}{' '}
+          <button className="small" onClick={onDismissRestoreProblem}>
+            {s.dismiss}
+          </button>
+        </div>
+      ) : null}
+
       {impact ? <ImpactBanner ws={ws} impact={impact} s={s} onDismiss={() => setImpact(null)} /> : null}
 
       <nav className="tabs" aria-label={s.panesLabel}>
@@ -165,7 +189,17 @@ export function WorkspaceView({ ws, setWs, locale, demo, demoId, onHome, onWorks
             </>
           ) : (
             <>
-              <ReviewPane key={selectedClaimId ?? 'none'} ws={ws} setWs={setWs} s={s} d={d} states={states} selectedClaimId={selectedClaimId} />
+              <ReviewPane
+                key={selectedClaimId ?? 'none'}
+                ws={ws}
+                setWs={setWs}
+                s={s}
+                d={d}
+                states={states}
+                selectedClaimId={selectedClaimId}
+                draft={(selectedClaimId && drafts[selectedClaimId]) || EMPTY_DRAFT}
+                setDraft={setDraft}
+              />
               <details style={{ marginTop: 16 }} className="desktop-history">
                 <summary className="muted">
                   {s.workspaceHistory} ({ws.history.length})

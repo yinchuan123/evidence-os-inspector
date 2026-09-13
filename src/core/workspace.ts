@@ -177,7 +177,8 @@ export function addClaim(ws: Workspace, args: { text: string; label?: string }, 
   const c = nextId(ws, 'clm')
   const v = nextId(c.ws, 'cv')
   const at = clock()
-  const order = Object.keys(ws.claims).length
+  // After the last claim, even if imported order values have gaps.
+  const order = Object.values(ws.claims).reduce((m, c) => Math.max(m, c.order + 1), 0)
   const version: ClaimVersion = { id: v.id, claimId: c.id, versionNo: 1, text: args.text, contentHash: sha256Hex(args.text), createdAt: at }
   const claim: Claim = { id: c.id, ...(args.label ? { label: args.label } : {}), headVersionId: v.id, createdAt: at, order }
   let next: Workspace = {

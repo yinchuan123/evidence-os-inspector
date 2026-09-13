@@ -49,6 +49,9 @@ export function ImpactBanner({
         <dt>{s.unaffected}</dt>
         <dd data-testid="impact-unaffected">{list(impact.unaffected)}</dd>
       </dl>
+      <p className="muted" data-testid="impact-note">
+        {s.impactNote}
+      </p>
       <div className="row">
         <button className="small" onClick={onDismiss}>
           {s.dismiss}

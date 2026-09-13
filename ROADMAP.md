@@ -20,7 +20,7 @@ text. We are looking for recurring, specific needs rather than "looks nice".
 - Collect: where people get stuck, what they expected, whether they came back,
   whether they shared a report.
 - Fix the problems that recur. Ship small point releases (v0.1.x).
-- Track publicly: GitHub issues labelled `feedback`.
+- Track publicly: GitHub issues with the `feedback` label (open an issue and describe what you tried).
 
 ## Then: fit into existing workflows (roughly weeks 3–4, adjusted by feedback)
 

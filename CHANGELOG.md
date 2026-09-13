@@ -3,11 +3,68 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.1.0-alpha.4] - 2026-09-14
+
+Point release from a final independent review of the live alpha.3 (import stress
+tests with about 175 crafted files, edge cases of the alpha.3 fixes, a
+first-time-visitor walkthrough in English and Chinese, docs versus release). No
+high-severity problems were found; 31 findings stood after adversarial
+verification. 29 are fixed here; 2 are recorded as issues for real-use feedback.
+
+### Fixed: keeping your work
+- When the browser refused to save a large workspace, the failure was silent and
+  a refresh brought back an older workspace. A visible warning now asks you to
+  export, the stale copy is removed, and the stored copy uses compact JSON.
+- An unreadable saved workspace was silently replaced. It is now kept aside in
+  session storage (`eosi.workspace.unreadable`) and a notice says so.
+- Importing a file replaced your own workspace without asking. It now asks first
+  (unless the file is the same workspace), naming what would be replaced.
+- The app refused its own exports above 5 MB; the import limit is now 50 MB.
+- A half-written review was lost when switching claims or tabs; drafts are now
+  kept per claim.
+- An imported file whose ids sat near the id limit became unimportable after one
+  edit. Implausibly large ids are now renumbered compactly on import, keeping
+  order and every reference. Ids named only in a review basis are no longer
+  reused, and a review basis must belong to its claim and source version.
+- A new claim is always added after the last one, even when imported order
+  values have gaps.
+
+### Fixed: interface and report
+- Between 901 and about 1,020px the header pushed buttons off-screen; it now
+  wraps below 1,200px.
+- "Split into sentences" selects the first new claim, so the first binding goes
+  where you expect.
+- Recording a review shows a confirmation; the heading reads "Record review for
+  claim v1".
+- The binding counter distinguishes the current source version from older ones;
+  the "passage not found" hint is no longer clipped.
+- Local times carry their UTC offset; report times are labelled UTC.
+- The language chosen on the start page now names a new workspace correctly.
+- The HTML report shows the passages earlier reviews were based on, wraps tables
+  for phones, and the Chinese report says "最新审阅" (latest review) instead of
+  "当前有效审阅" (currently valid review).
+
+### Docs
+- README walkthrough: how to bind a passage, how to get back to "Review your
+  text", and where the highlight is on a phone.
+- FAQ: when an indirect claim is marked for re-review (it depends on the state of
+  the claim it rests on).
+- alpha.3 notes: references in records and review bases are checked; history
+  events are display-only. CHANGELOG intro corrected (all eleven fixes held).
+
+### Tests
+- 89 unit tests (10 new) and 33 end-to-end flows (11 new). Every new test was
+  checked by re-introducing its defect: 19 distinct defects, all caught.
+
+### Not fixed (tracked as issues)
+- Very large workspaces (thousands of claims) become slow.
+- A claim labelled "1" and an unlabelled claim in position 1 share a name.
+
 ## [0.1.0-alpha.3] - 2026-09-14
 
 Point release from the post-release verification of alpha.2 on the live site
-(two independent checkers per earlier finding). The eight re-checked fixes held;
-the checkers found four adjacent defects, fixed here.
+(two independent checkers per earlier finding). All eleven earlier fixes held;
+the checkers and a regression sweep found further defects, fixed here.
 
 ### Fixed
 - Import accepted id numbers beyond the exact-integer range (for example
@@ -27,8 +84,10 @@ the checkers found four adjacent defects, fixed here.
   workspace and persist; importing while viewing a demo moves you to it.
 - Stored review labels outside the four allowed values now get an error that
   names the allowed labels.
-- Import resolves references only to records in the file: a reference such as
-  `constructor` or `__proto__` is refused instead of matching a built-in name.
+- Import resolves references in records and review bases only to records in
+  the file: a reference such as `constructor` or `__proto__` is refused instead
+  of matching a built-in name. (History events are display-only and are not
+  checked against records.)
   Duplicate history event ids are refused.
 - Claims without a label were shown by internal id (`clm_2`) in the impact
   banner, history and report while the list showed "1", "2"; all views now use

@@ -16,7 +16,7 @@ export function safeFilename(base: string, ext: string): string {
   return `${cleaned}.${ext}`
 }
 
-export function readFileAsText(file: File, maxBytes = 5 * 1024 * 1024): Promise<string> {
+export function readFileAsText(file: File, maxBytes = 50 * 1024 * 1024): Promise<string> {
   if (file.size > maxBytes) return Promise.reject(new Error(`File is larger than ${Math.round(maxBytes / 1024 / 1024)} MB`))
   return file.text()
 }

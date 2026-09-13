@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { safeHref } from '../core/report'
 import type { ID, ImpactReport, Workspace } from '../core/types'
-import { activeBindingsOf, addBinding, addSource, bindingsOf, computeImpact, renameSource, reviseSource, sourceVersionsOf } from '../core/workspace'
+import { addBinding, addSource, bindingsOf, computeImpact, renameSource, reviseSource, sourceVersionsOf } from '../core/workspace'
 import type { BuiltDemo } from '../demos'
 import { claimDisplayLabel } from './labels'
 import { readFileAsText } from './download'
@@ -292,11 +292,10 @@ export function SourcePane({ ws, setWs, s, selectedClaimId, selectedSourceId, se
             )}
           </div>
           {selectedClaimId ? (
-            <p className="muted">
+            <p className="muted" data-testid="binding-counts">
               {s.bindingCounts(
-                activeBindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length,
-                bindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length -
-                  activeBindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id).length,
+                bindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id && b.sourceVersionId === source.headVersionId).length,
+                bindingsOf(ws, selectedClaimId).filter((b) => b.sourceId === source.id && b.sourceVersionId !== source.headVersionId).length,
               )}
             </p>
           ) : null}

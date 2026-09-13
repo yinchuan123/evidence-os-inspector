@@ -50,6 +50,9 @@ const ID_RE = /^[a-z]+_\d+$/
 export const MAX_ID_NUMBER = 2 ** 48
 const idNumberOf = (id: string) => Number(id.slice(id.lastIndexOf('_') + 1))
 const isValidId = (id: unknown): id is string => isStr(id) && ID_RE.test(id) && idNumberOf(id) <= MAX_ID_NUMBER
+// Above this, ids are renumbered compactly on import (order and references preserved), so
+// a file whose ids sit near the limit stays importable after any number of later edits.
+const RENUMBER_ABOVE = 2 ** 32
 
 // 'unreviewed' is the derived state of a claim with no review; it is never a stored review label.
 const REVIEW_LABELS = new Set(['supported-in-scope', 'partially-supported', 'not-supported', 'cannot-determine'])
@@ -289,7 +292,11 @@ export function importWorkspace(json: string): ImportResult {
     for (const b of r.basisSources) {
       if (!own(sources, b.sourceId)) v.fail(`reviews.${r.id}: unknown source ${b.sourceId}`)
       if (!own(sourceVersions, b.sourceVersionId)) v.fail(`reviews.${r.id}: unknown source version ${b.sourceVersionId}`)
-      if (!own(bindings, b.bindingId)) v.warnings.push(`reviews.${r.id}: basis binding ${b.bindingId} no longer exists`)
+      const bound = get(bindings, b.bindingId)
+      if (!bound) v.warnings.push(`reviews.${r.id}: basis binding ${b.bindingId} no longer exists`)
+      else if (bound.claimId !== r.claimId || bound.sourceId !== b.sourceId || bound.sourceVersionId !== b.sourceVersionId) {
+        v.fail(`reviews.${r.id}: basis binding ${b.bindingId} does not belong to this claim and source version`)
+      }
     }
     for (const b of r.basisClaims) {
       if (!own(claims, b.claimId)) v.fail(`reviews.${r.id}: unknown upstream claim ${b.claimId}`)
@@ -338,14 +345,23 @@ export function importWorkspace(json: string): ImportResult {
   }
   for (const rec of [sources, sourceVersions, claims, claimVersions, bindings, reviews, dependencies]) Object.keys(rec).forEach(bump)
   history.forEach((h) => bump(h.id))
-  const safeNextId = Math.max(nextId, maxId + 1)
-  if (safeNextId !== nextId) v.warnings.push(`nextId raised from ${nextId} to ${safeNextId}`)
+  // Ids named only in a review basis (for example a binding removed later) must not be reused either.
+  for (const r of Object.values(reviews)) {
+    r.basisSources.forEach((b) => ID_RE.test(b.bindingId) && bump(b.bindingId))
+    r.basisClaims.forEach((b) => {
+      if (ID_RE.test(b.dependencyId)) bump(b.dependencyId)
+      if (b.reviewId && ID_RE.test(b.reviewId)) bump(b.reviewId)
+    })
+  }
+  for (const h of history) {
+    for (const [k, val] of Object.entries(h)) if (k !== 'id' && isStr(val) && ID_RE.test(val)) bump(val)
+  }
 
-  const ws: Workspace = {
+  let ws: Workspace = {
     format: WORKSPACE_FORMAT,
     formatVersion: WORKSPACE_FORMAT_VERSION,
     meta,
-    nextId: safeNextId,
+    nextId: Math.max(nextId <= RENUMBER_ABOVE ? nextId : 0, maxId + 1),
     sources: { ...sources },
     sourceVersions: { ...sourceVersions },
     claims: { ...claims },
@@ -355,5 +371,59 @@ export function importWorkspace(json: string): ImportResult {
     dependencies: { ...dependencies },
     history,
   }
+  if (maxId > RENUMBER_ABOVE || ws.nextId > RENUMBER_ABOVE) {
+    ws = renumberIds(ws)
+    v.warnings.push(`ids renumbered compactly (largest id number was ${maxId})`)
+  } else if (ws.nextId !== nextId) {
+    v.warnings.push(`nextId raised from ${nextId} to ${ws.nextId}`)
+  }
   return { ok: true, ws, warnings: v.warnings }
+}
+
+/**
+ * Give every id a small sequential number, preserving creation order (old number, then
+ * id string) and rewriting every reference, including review bases and history events.
+ */
+function renumberIds(ws: Workspace): Workspace {
+  const seen = new Set<string>()
+  const note = (id: string | null | undefined) => {
+    if (id && ID_RE.test(id)) seen.add(id)
+  }
+  const recs = [ws.sources, ws.sourceVersions, ws.claims, ws.claimVersions, ws.bindings, ws.reviews, ws.dependencies]
+  for (const rec of recs) Object.keys(rec).forEach(note)
+  for (const s of Object.values(ws.sources)) note(s.headVersionId)
+  for (const r of Object.values(ws.reviews)) {
+    r.basisSources.forEach((b) => [b.sourceId, b.sourceVersionId, b.bindingId].forEach(note))
+    r.basisClaims.forEach((b) => [b.claimId, b.claimVersionId, b.reviewId, b.dependencyId].forEach(note))
+  }
+  for (const h of ws.history) for (const val of Object.values(h)) if (typeof val === 'string') note(val)
+  const ordered = [...seen].sort((a, b) => idNumberOf(a) - idNumberOf(b) || (a < b ? -1 : a > b ? 1 : 0))
+  const map = new Map(ordered.map((id, n) => [id, `${id.slice(0, id.lastIndexOf('_'))}_${n + 1}`]))
+  const m = (id: string) => map.get(id) ?? id
+  const rekey = <T extends { id: ID }>(rec: Record<ID, T>, fix: (x: T) => T): Record<ID, T> => {
+    const out: Record<ID, T> = {}
+    for (const x of Object.values(rec)) {
+      const y = fix({ ...x, id: m(x.id) })
+      out[y.id] = y
+    }
+    return out
+  }
+  return {
+    ...ws,
+    nextId: ordered.length + 1,
+    sources: rekey(ws.sources, (x) => ({ ...x, headVersionId: m(x.headVersionId) })),
+    sourceVersions: rekey(ws.sourceVersions, (x) => ({ ...x, sourceId: m(x.sourceId) })),
+    claims: rekey(ws.claims, (x) => ({ ...x, headVersionId: m(x.headVersionId) })),
+    claimVersions: rekey(ws.claimVersions, (x) => ({ ...x, claimId: m(x.claimId) })),
+    bindings: rekey(ws.bindings, (x) => ({ ...x, claimId: m(x.claimId), sourceId: m(x.sourceId), sourceVersionId: m(x.sourceVersionId) })),
+    reviews: rekey(ws.reviews, (x) => ({
+      ...x,
+      claimId: m(x.claimId),
+      claimVersionId: m(x.claimVersionId),
+      basisSources: x.basisSources.map((b) => ({ sourceId: m(b.sourceId), sourceVersionId: m(b.sourceVersionId), bindingId: m(b.bindingId) })),
+      basisClaims: x.basisClaims.map((b) => ({ claimId: m(b.claimId), claimVersionId: m(b.claimVersionId), reviewId: b.reviewId === null ? null : m(b.reviewId), dependencyId: m(b.dependencyId) })),
+    })),
+    dependencies: rekey(ws.dependencies, (x) => ({ ...x, claimId: m(x.claimId), dependsOnClaimId: m(x.dependsOnClaimId) })),
+    history: ws.history.map((h) => Object.fromEntries(Object.entries(h).map(([k, val]) => [k, typeof val === 'string' && k !== 'at' && k !== 'type' && k !== 'text' && k !== 'from' && k !== 'to' ? m(val) : val])) as unknown as HistoryEvent),
+  }
 }

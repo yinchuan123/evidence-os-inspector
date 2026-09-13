@@ -36,11 +36,11 @@ describe('report column headers', () => {
     const html = renderReport(unlabeled().ws, { locale: 'en', now: clock() })
     // "Generated" still appears in the report's own meta line and footer, which is correct.
     expect(html).not.toMatch(/<th>Generated<\/th>/)
-    expect(html).toMatch(/<th>Created<\/th>/)
-    expect(html).toMatch(/<th>Time<\/th>/)
+    expect(html).toMatch(/<th>Created \(UTC\)<\/th>/)
+    expect(html).toMatch(/<th>Time \(UTC\)<\/th>/)
     const zh = renderReport(unlabeled().ws, { locale: 'zh-CN', now: clock() })
     expect(zh).not.toMatch(/<th>生成时间<\/th>/)
-    expect(zh).toMatch(/<th>创建时间<\/th>/)
+    expect(zh).toMatch(/<th>创建时间 \(UTC\)<\/th>/)
   })
 })
 

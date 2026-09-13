@@ -42,11 +42,24 @@ export function App() {
   // counts is how the workspace was opened (demo route or own workspace), not the
   // file's synthetic flag: a demo export the user imports becomes their workspace.
   const persistRef = useRef(false)
+  const [persistFailed, setPersistFailed] = useState(false)
+  const [restoreProblem, setRestoreProblem] = useState(false)
+  const localeRef = useRef(locale)
+  localeRef.current = locale
   const persist = (next: Workspace) => {
     try {
-      sessionStorage.setItem(SESSION_KEY, exportWorkspace(next))
+      // Compact JSON: session storage is limited to about 5 million characters.
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(JSON.parse(exportWorkspace(next))))
+      setPersistFailed(false)
     } catch {
-      /* quota or unavailable: in-memory only */
+      // Too large or storage unavailable. Never leave an older copy behind to
+      // silently come back on reload; tell the user to export instead.
+      try {
+        sessionStorage.removeItem(SESSION_KEY)
+      } catch {
+        /* ignore */
+      }
+      setPersistFailed(true)
     }
   }
   const setWs = useCallback((next: Workspace) => {
@@ -78,15 +91,20 @@ export function App() {
           if (saved) {
             const r = importWorkspace(saved)
             if (r.ok) restored = r.ws
+            else {
+              // Keep the unreadable copy aside instead of overwriting it, and say so.
+              sessionStorage.setItem(`${SESSION_KEY}.unreadable`, saved)
+              setRestoreProblem(true)
+            }
           }
         } catch {
-          /* ignore */
+          setRestoreProblem(true)
         }
       }
-      setWs(restored ?? createWorkspace({ title: UI[locale].ws.newWorkspaceTitle, synthetic: false }))
+      setWs(restored ?? createWorkspace({ title: UI[localeRef.current].ws.newWorkspaceTitle, synthetic: false }))
       if (window.location.hash !== '#workspace') window.location.hash = 'workspace'
     },
-    [locale, setWs],
+    [setWs],
   )
 
   // Route on load and on hash changes (back/forward, refresh).
@@ -154,14 +172,34 @@ export function App() {
         }
         openOwn(true)
       }}
+      persistFailed={persistFailed}
+      restoreProblem={restoreProblem}
+      onDismissRestoreProblem={() => setRestoreProblem(false)}
       onImported={(next) => {
-        // An explicitly imported file becomes the user's own workspace.
+        // An explicitly imported file becomes the user's own workspace. Ask first if that
+        // replaces an own workspace with content (unless the file is that same workspace).
+        let current: Workspace | null = demoId ? null : ws
+        if (demoId) {
+          try {
+            const saved = sessionStorage.getItem(SESSION_KEY)
+            const r = saved ? importWorkspace(saved) : null
+            if (r && r.ok) current = r.ws
+          } catch {
+            /* ignore */
+          }
+        }
+        if (current && exportWorkspace(current) !== exportWorkspace(next)) {
+          const claims = Object.keys(current.claims).length
+          const sources = Object.keys(current.sources).length
+          if ((claims || sources) && !window.confirm(UI[locale].ws.confirmImportReplace(current.meta.title, claims, sources))) return false
+        }
         persistRef.current = true
         persist(next)
         setDemo(null)
         setDemoId(null)
         setWsState(next)
         if (window.location.hash !== '#workspace') window.location.hash = 'workspace'
+        return true
       }}
       onToggleLocale={toggleLocale}
     />
