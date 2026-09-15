@@ -3,6 +3,26 @@
 All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [Unreleased]
+
+Docs only; no code changes.
+
+### Docs
+- Positioning: Inspector is a small browser-only tool for demonstration,
+  teaching and feedback, not a production tool for systematic-review teams.
+- README (English and Chinese): "Who it is for", with what it does not suit
+  today and a short note on why the problem matters, and "Related tools".
+- A classroom exercise in docs/TEACHING.md, linked from the README.
+- FAQ: "Who is this for?" and "Are there similar tools?" in both languages.
+- Roadmap: the next phase is teaching and demonstration (Chinese demo texts,
+  the classroom exercise, small usability fixes). Automatic detection of
+  retractions, corrections or new versions, binding to numbers in extraction
+  tables, and import from reference managers or review platforms are listed as
+  not planned for v0.x.
+- Roadmap: removed the earlier "fit into existing workflows" phase (`.docx` text
+  extraction, a way for an AI writing assistant to propose bindings, and
+  reference-export metadata).
+
 ## [0.1.0-alpha.4] - 2026-09-14
 
 Point release from a final independent review of the live alpha.3 (import stress

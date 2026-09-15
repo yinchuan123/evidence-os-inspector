@@ -32,6 +32,43 @@ the source text you are checking against, and do the same.
 All demo studies are invented. They show the mechanics, not real evidence. The
 demo texts are in English; the interface is also available in Chinese.
 
+## Who it is for
+
+Inspector is a small tool for demonstrating the mechanism, teaching, and
+collecting feedback. It is not a production tool for systematic-review teams.
+
+**Suited to**
+
+- Teams that maintain evidence over time (living systematic reviews, guideline
+  groups, evidence and HTA centres) who want to try the mechanism on a small
+  set of key claims.
+- Teaching research methods: how a claim depends on evidence, and what a
+  correction does to it. See the [classroom exercise](docs/TEACHING.md).
+
+**Not suited to, today**
+
+- Detecting retractions or corrections. Inspector does not look for them. Use
+  reference-level alerts for that, such as
+  [Zotero's retracted item notifications](https://www.zotero.org/blog/retracted-item-notifications/)
+  (retractions only) or
+  [scite Reference Check](https://scite.ai/blog/how-do-i-use-the-scite-reference-check)
+  (retraction and correction notices).
+- Tracking changed numbers in data-extraction tables. Inspector binds text
+  passages.
+- Reviews with hundreds of studies. Binding is manual.
+- Team collaboration. There are no shared workspaces.
+
+**Why this matters.** Of 1,330 retracted trials, 312 had been pooled in 4,095
+meta-analyses in 847 systematic reviews. Of the 3,902 meta-analyses that could
+be re-analysed without them, 16.0% changed statistical significance (Xu 2025,
+BMJ). When a trial was retracted after a review was published, 9 of 196 reviews
+and 2 of 43 guidelines were later corrected or retracted (Kataoka 2022, J Clin
+Epidemiol). After removing the retracted study, 96% of 166 recalculated
+meta-analyses stayed within the original confidence interval, but 11% changed
+statistical significance (Graña Possamai 2025, JAMA Intern Med). Inspector
+covers only the step after a change is known: which recorded claims are bound
+to the changed source, or depend on such claims through confirmed links.
+
 ## Screenshots
 
 | Claim bound to a source passage | Impact of a source correction | Standalone HTML report |
@@ -80,6 +117,30 @@ Details: [docs/CONCEPTS.md](docs/CONCEPTS.md) · JSON format: [docs/FORMAT.md](d
   being considered next.
 - A content hash shows whether recorded text changed. It says nothing about
   scientific truth, authorship, or meaning.
+
+## Related tools
+
+The mechanism is not new. Similar ideas are used elsewhere:
+
+- Requirements traceability tools mark a link as "suspect" when the linked item
+  changes, for example [Doorstop](https://github.com/doorstop-dev/doorstop).
+- Recent open-source projects apply similar ideas to other domains, for example
+  [Proofline](https://github.com/thangldw/proofline), which binds engineering
+  decisions to source versions and cited spans and flags affected decisions for
+  review, including through dependencies.
+- Claims-management software for pharmaceutical promotional review anchors
+  claims to passages in reference documents, for example
+  [Veeva Vault PromoMats](https://commercial.veevavault.help/en/gr/57379/).
+- In evidence synthesis, tools flag retracted or corrected references at the
+  level of the whole reference, for example
+  [Zotero](https://www.zotero.org/blog/retracted-item-notifications/)
+  (retractions) and
+  [scite Reference Check](https://scite.ai/blog/how-do-i-use-the-scite-reference-check)
+  (retraction and correction notices).
+
+We have not found a tool in evidence synthesis that combines passage binding,
+version-bound reviews and transitive re-review flags. If you know one, please
+[open an issue](https://github.com/yinchuan123/evidence-os-inspector/issues).
 
 ## Privacy
 

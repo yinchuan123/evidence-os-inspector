@@ -2,11 +2,30 @@
 
 [中文](#中文)
 
+**Who is this for?**
+Inspector is a small tool for demonstration, teaching and feedback. It suits
+teams that maintain evidence over time (living systematic reviews, guideline
+groups, evidence and HTA centres) who want to try the mechanism on a few key
+claims, and research-methods teaching: see the
+[classroom exercise](../docs/TEACHING.md). It does not look for retractions or
+corrections in the literature; you enter a corrected source yourself. It does
+not bind numbers in data-extraction tables. Binding is
+manual, so it does not suit reviews with hundreds of studies. There is no team
+collaboration.
+
+**Are there similar tools?**
+Yes. The mechanism is not new. Requirements traceability tools such as Doorstop
+mark "suspect links"; Proofline applies similar ideas to engineering decisions;
+Veeva Vault PromoMats anchors pharmaceutical promotional claims to passages in
+reference documents; Zotero (retractions) and scite Reference Check (retraction
+and correction notices) flag references at reference level. We have not found a tool in evidence synthesis that
+combines passage binding, version-bound reviews and transitive re-review flags.
+If you know one, please [open an issue](https://github.com/yinchuan123/evidence-os-inspector/issues). Links to each tool are
+in the [README](../README.md#related-tools).
+
 **Is there any AI in it?**
 No. Version 0.1 contains no language model and calls no AI service. Sentence
 splitting is a plain heuristic. Every review label is entered by a person.
-A future adapter may let an AI assistant *propose* bindings or rationales for a
-person to confirm; proposals would be clearly marked as unreviewed.
 
 **Does it upload my text?**
 No. The app runs in your browser tab. The production build ships a
@@ -76,8 +95,14 @@ recommendation, and no institution or journal endorses it.
 
 ## 中文
 
+**适合谁用？**
+Inspector 是用于演示、教学和收集反馈的小型工具。它适合长期维护证据的团队（动态系统综述、指南制定组、循证中心与 HTA 机构）在少量关键主张上试用这一机制，也适合研究方法教学，见[课堂练习](../docs/TEACHING.md)。它不会去文献中查找撤稿或更正；更正后的来源需要你自己录入。它也不绑定数据提取表中的数字。绑定靠手工，所以不适合纳入几百项研究的综述。没有团队协作。
+
+**有类似的工具吗？**
+有。这一机制并不新。需求追溯工具（如 Doorstop）会标出"可疑链接"；Proofline 把类似思路用于工程决策；Veeva Vault PromoMats 把药企推广声明锚定到参考文献中的片段；Zotero（撤稿）和 scite Reference Check（撤稿与更正通知）在文献层面给出提示。我们还没有找到一个证据综合领域的工具，把片段绑定、绑定版本的审阅和传递式复核提示结合在一起。如果你知道，请[提交 issue](https://github.com/yinchuan123/evidence-os-inspector/issues)。各工具的链接见 [README](../README.zh-CN.md#相关工具)。
+
 **里面有 AI 吗？**
-没有。v0.1 不包含语言模型，也不调用任何 AI 服务。句子切分只是简单规则。所有审阅标签都由人填写。未来的适配器可能让 AI 助手*提议*绑定或理由，由人确认；提议会被清楚标为未审阅。
+没有。v0.1 不包含语言模型，也不调用任何 AI 服务。句子切分只是简单规则。所有审阅标签都由人填写。
 
 **会上传我的文字吗？**
 不会。应用在你的浏览器标签页内运行。生产构建的 Content-Security-Policy 含 `connect-src 'none'`，页面完全无法发起 fetch、XHR 或 WebSocket 请求；加载后的请求只有同一静态站点上的演示媒体，你输入的内容不会发送到任何地方。导出只在你的电脑上生成文件。托管页面（GitHub Pages）像任何静态站点一样有普通的 Web 访问日志，那是托管方的日志，不是你的文字。

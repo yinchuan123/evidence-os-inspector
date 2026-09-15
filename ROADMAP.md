@@ -14,25 +14,26 @@ under a future phase is implemented yet unless the changelog says so.
 
 ## Next: real use and fixes (first 1–2 weeks after release)
 
-Goal: learn from about ten volunteers who try it on their own non-sensitive
-text. We are looking for recurring, specific needs rather than "looks nice".
+Goal: learn from about ten volunteers who work on living systematic reviews,
+guidelines or research-methods teaching, and who try it on their own
+non-sensitive text. We are looking for recurring, specific needs rather than
+"looks nice".
 
 - Collect: where people get stuck, what they expected, whether they came back,
   whether they shared a report.
 - Fix the problems that recur. Ship small point releases (v0.1.x).
 - Track publicly: GitHub issues with the `feedback` label (open an issue and describe what you tried).
 
-## Then: fit into existing workflows (roughly weeks 3–4, adjusted by feedback)
+## Then: teaching and demonstration (roughly weeks 3–4, adjusted by feedback)
 
-Pick **one** extension that clearly reduces user effort, not all of them:
+Inspector stays a small browser-only tool for demonstration, teaching and
+feedback.
 
-- Easier import: e.g. paste-from-clipboard with automatic sentence proposals,
-  or `.docx` text extraction (client-side, no upload).
-- A generic Skill / MCP-style adapter so an AI writing assistant can *read*
-  a workspace and *propose* bindings or rationales that a person then confirms.
-  Proposals would be clearly marked as unreviewed.
-- Small-scale support for a common reference export (e.g. RIS/BibTeX titles
-  and identifiers as source metadata, still "user-provided, not verified").
+- Chinese demo texts, so the demos can be followed without English
+  ([issue #3](https://github.com/yinchuan123/evidence-os-inspector/issues/3)).
+- Improve the classroom exercise in [docs/TEACHING.md](docs/TEACHING.md) from
+  the feedback of people who teach with it or try it.
+- Small usability fixes that come up in real use.
 
 ## Later: a public interface to Evidence OS (no date)
 
@@ -47,6 +48,13 @@ licensing that allows it. Until then this section stays a statement of intent.
 - Server-side storage, accounts, or real-time collaboration.
 - Fetching papers, resolving DOIs, or PDF/OCR import.
 - Automatic GRADE, risk-of-bias, or meta-analysis.
+- Automatic detection of retractions, corrections or new versions of sources.
+- Binding to numbers in data-extraction tables.
+- Import from reference managers or systematic-review platforms.
+
+Detecting retractions, corrections or new versions needs outside records that a
+browser-only tool without network access does not have. Binding to numbers and
+importing from other software are left out to keep v0.x small.
 
 ## How to influence this
 

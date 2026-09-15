@@ -23,6 +23,24 @@
 
 演示里的"研究"全部是虚构的，只用于展示机制，不代表真实证据。演示文本目前为英文；界面支持中文。
 
+## 适合谁用
+
+Inspector 是一个小型工具，用于演示这一机制、教学和收集反馈，不是面向系统综述团队的生产工具。
+
+**适合**
+
+- 长期维护证据的团队（动态系统综述、指南制定组、循证中心与 HTA 机构），想先在少量关键主张上试用这一机制。
+- 研究方法教学：主张怎样依赖证据，一次更正会带来什么。见[课堂练习](docs/TEACHING.md)。
+
+**目前不适合**
+
+- 发现撤稿或更正。Inspector 不做这件事；这类提醒请用文献级工具，例如 [Zotero 的撤稿条目提醒](https://www.zotero.org/blog/retracted-item-notifications/)（仅撤稿）或 [scite Reference Check](https://scite.ai/blog/how-do-i-use-the-scite-reference-check)（撤稿与更正通知）。
+- 追踪数据提取表中数字的变化。Inspector 绑定的是文本片段。
+- 纳入几百项研究的综述。绑定靠手工完成。
+- 团队协作。没有共享工作区。
+
+**为什么重要。** 1330 项撤稿试验中，有 312 项被合并进 847 篇系统综述的 4095 个 Meta 分析；在可重新分析的 3902 个 Meta 分析中，去掉这些试验后 16.0% 的统计学显著性发生改变（Xu 2025, BMJ）。试验在综述发表后才被撤稿的，196 篇综述中有 9 篇、43 份指南中有 2 份后来被更正或撤回（Kataoka 2022, J Clin Epidemiol）。去掉撤稿研究后重算的 166 个 Meta 分析中，96% 仍在原置信区间内，但 11% 的统计学显著性发生改变（Graña Possamai 2025, JAMA Intern Med）。Inspector 只处理已知来源变化之后的一步：哪些已记录的主张直接绑定到被改动的来源，或经已确认的依赖关系间接受其影响。
+
 ## 截图
 
 | 主张与来源片段对照 | 来源更正的影响 | 独立 HTML 报告 |
@@ -52,6 +70,17 @@
 - 不验证 DOI 或 URL，不抓取论文。标识符按"用户提供，未验证"保存。
 - 没有 PDF/OCR 导入、AI 阅读、数据库、多人服务器、自动 GRADE 或 Meta 分析。下一步考虑的方向见[路线图](ROADMAP.md)。
 - 内容哈希只说明记录的文本是否变化，不说明科学真实性、作者身份或语义。
+
+## 相关工具
+
+这一机制并不新。类似的思路已在其他地方使用：
+
+- 需求追溯工具会在被链接的条目变化时，把链接标为"可疑"（suspect link），例如 [Doorstop](https://github.com/doorstop-dev/doorstop)。
+- 近期的开源项目把类似思路用于其他领域，例如 [Proofline](https://github.com/thangldw/proofline)：把工程决策绑定到来源版本和引文片段，并在来源变化时沿依赖关系提示受影响的决策需要复核。
+- 药企推广材料审核使用的声明管理软件，把声明锚定到参考文献中的片段，例如 [Veeva Vault PromoMats](https://commercial.veevavault.help/en/gr/57379/)。
+- 在证据综合领域，已有工具在整篇文献层面提示撤稿或更正，例如 [Zotero](https://www.zotero.org/blog/retracted-item-notifications/)（撤稿）和 [scite Reference Check](https://scite.ai/blog/how-do-i-use-the-scite-reference-check)（撤稿与更正通知）。
+
+我们还没有找到一个证据综合领域的工具，把片段绑定、绑定版本的审阅和传递式复核提示结合在一起。如果你知道，请[提交 issue](https://github.com/yinchuan123/evidence-os-inspector/issues)。
 
 ## 隐私
 
